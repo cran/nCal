@@ -1,0 +1,74 @@
+2012-03-06  V_0.0.7 Youyi Fong
+
+    * add log.transform to rumi argument list
+    * add est.conc, lb.conc, ub.conc to data frames returned by rumi
+
+2012-03-22  V_0.0.8 Youyi Fong
+
+    * add weighting to rumi argument list. Note that the power is -1.8 and it
+    only works for non-transformed FI.
+    * add drm.weights.var.power, a global variable that controls variance
+    function 
+
+2012-04-09  V_0.0.9 Youyi Fong
+
+    * add testing vcov is null due to a numerical exception from some dataset
+
+2012-05-11  V_0.0.10 Youyi Fong
+
+    * add incr and auto.detect.incr at the request of Maria
+
+2012-05-21  V_0.0.11 Youyi Fong
+
+    * bug fix for unknown sample concentration estimation when the curve is
+    decreasing
+    * prompted by Maria and Devin
+
+2012-06-24  V_0.0.12 Youyi Fong
+
+    * change the ordering of rows in data frame, this affects the numerical
+    outcome of fitted curve because drm /5pl is sensitive
+    * fix a bug for plot=F & find.LOD=T
+    * if a sample has multiple replicates, fi in the returned data frame now
+    equals exp(Y_bar), previously it equals exp(Y_1)
+    * prompted by William 
+
+2012-08-11  V_0.0.13 Youyi Fong
+
+    * add loq.30
+    * change how the default behavior of find.lod works. Previously it finds
+    95% CI by default, now it is 90%. This change is made to make it
+    consistent with test.LOD, which defaults to 90%. Both defaults can be
+    changed with a single parameter now, lod.ci
+    * each curve will always have lod and loq. When se is bad, it will be NA
+
+2012-08-22  V_0.0.14 Youyi Fong
+
+    * use qt instead of qnorm for confidence interval and LODi
+    testing/estimation
+
+2012-08-30  V_0.0.15 Youyi Fong
+
+    * change the column names of loq30 from rloq to rloq30, same for lloq
+    * change the column names of lod from x.low to llodi, same for x.high
+    * CI was defined on the t scale
+    * LoDi was defined on the t scale, now the ci.scale.t parameter controls whether it is on t or x scale
+    * LoQ was defined on the x scale using an usual definition of se
+    * need to tell Devin LoDi.x=F
+    * new feature in plots
+    * Fix: if fi is 0 or less, things go wrong with no good error message
+    (Tiffany).
+
+2012-08-30  V_0.0.16 Youyi Fong
+
+    * remove log.transform from the list of arguments
+    * add rumi.formula, rumi.data.frame
+
+2013-04-17  V_0.1-1 Youyi Fong, Krisztian Sebestyen 
+    * Rename Ruminex to nCal
+    * improve fit.jags functional interface
+    * add import functions
+    * add Excel plugin
+    * submit to CRAN
+    * paper submission
+    * remove drm.weights.var.power, a global variable that controls variance
