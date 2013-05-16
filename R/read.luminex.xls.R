@@ -18,14 +18,17 @@ read.luminex.xls<-function(file,verbose = FALSE,sheets = NULL, assay_id=NULL, na
     for(i in 1:length(sheets))
         docs[[i]] <- read.luminex.sheet.xls(file, sheet = sheets[i], verbose = verbose, na.strings = na.strings, ..., perl = perl) 
     names(docs) <- sheets
-    if(length(docs) == 1) docs <- docs[[1]]
-    docs=do.call(rbind, docs)
-    
-    names(docs) <- tolower(names(docs))
-    names(docs)[names(docs)=="description"]="sample_id"
-    names(docs)[names(docs)=="exp.conc"]="expected_conc"
-    names(docs)[names(docs)=="type"]="well_role"
-    
+	
+    if(length(docs) == 1)
+		docs <- docs[[1]]
+	else 
+		docs <- do.call(rbind, docs)
+
+    colnames(docs) <- tolower(colnames(docs))
+    colnames(docs)[colnames(docs)=="description"]="sample_id"
+    colnames(docs)[colnames(docs)=="exp.conc"]="expected_conc"
+    colnames(docs)[colnames(docs)=="type"]="well_role"	
+	
     docs$well_role[startsWith(docs$well_role, "X")]="Unknown"
     docs$well_role[startsWith(docs$well_role, "S")]="Standard"
     docs$well_role[startsWith(docs$well_role, "B")]="Background"

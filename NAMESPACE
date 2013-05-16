@@ -3,9 +3,9 @@ export(bcrm, coef.bcrm, vcov.bcrm, plot.bcrm, print.bcrm, getVarComponent.bcrm, 
 export(drm.fit, getVarComponent.drc)
 
 export(gh2cla, cla2gh, cla2ed50)
-export(FivePL.t, FivePL.x.inv.func, FivePL.t.func, FivePL.x, FivePL.x.inv, FivePL.t.inv, FivePL.t.inv.func, FourPL.x, FourPL.t.func)
+export(FivePL.t, FivePL.x.inv.func, FivePL.t.func, FivePL.x, FivePL.x.inv, FivePL.t.inv, FivePL.t.inv.func, FourPL.x, FourPL.t.func, FourPL.x.inv)
 export(vpl1.deriv, vpl1.deriv.func, vpl2.deriv, vpl2.deriv.func, vpl3.deriv, vpl3.deriv.func)
-export(ED5PL, plot5PL)
+export(ED5PL, plot5PL, getConc)
 
 export(get.S1, get.S2, get.abc, get.abs.dev)
 export(get.curve.param.list, simulate1curve)

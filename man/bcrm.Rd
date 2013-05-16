@@ -14,9 +14,12 @@
 \usage{
 
 bcrm (formula, data, error.model, 
-    informative.prior, prior.sensitivity=NULL, 
+    informative.prior, 
+    fit.4pl=FALSE,
+    prior.sensitivity=NULL, 
     n.iter=1e5, jags.seed=1, n.thin=NULL, T.init=NULL, keep.data=TRUE, 
-    keep.jags.samples=FALSE, standards.only=TRUE, verbose=FALSE,
+    keep.jags.samples=FALSE, standards.only=TRUE, n.adapt=1e3,
+    verbose=FALSE,
     t.unk.truth=NULL, params.true=NULL)
 
 \method{print}{bcrm} (x, ...)
@@ -33,6 +36,7 @@ get.single.fit (fit, assay_id)
   \item{data}{ a data frame. Each row represents the measurement from one well/bead_type. See details }
   \item{error.model}{ a string specifying the error.model to fit. See details.}
   \item{informative.prior}{boolean. If TRUE, use informative priors. See details.}
+  \item{fit.4pl}{boolean. If TRUE, fit 4PL.}
   \item{n.iter}{ a number indicating the number of iterations to run.}
   \item{jags.seed}{ a number to seed the random number generator used within jags.}
   \item{n.thin}{ a number specifying the thinning factor applied to the jags samples.}
@@ -43,6 +47,7 @@ get.single.fit (fit, assay_id)
   \item{T.init}{a integer vector. Initial values for mixture indicators.}
   \item{prior.sensitivity}{integer. A number between 1 and 4. Change priors.}
   \item{standards.only}{boolean. If TRUE, data is subset to standard samples only.}
+  \item{n.adapt}{integer. Passed to jags.model. If 0, then no adaptation happens and reproducible results can be obtained from jags.model.}
   \item{verbose}{boolean. If TRUE, debug messages are printed.}
   
   \item{x}{bcrm fit object.}
@@ -128,8 +133,9 @@ par(mfrow=c(1,2))
 plot(fits)
 
 
+
 \dontrun{
-# this block of code takes a few minutes to run
+# takes longer
 
 # Example from Fong et al. (2012) 
 fits.t4 = bcrm (log(fi)~expected_conc, dat.QIL3, error.model="gh_t4", informative.prior=TRUE)
@@ -141,17 +147,6 @@ par(mfrow=c(2,3))
 plot(fits.norm)
 
 
-# Example from Fong et al (2013)
-fit.bcrm=bcrm(log(fi)~expected_conc, subset(hier.model.ex.2,assay_id %in% c("Run 1","Run 2","Run 3",
-    "Run 4")), error.model="gh_t4", informative.prior=T)
-
-for (p in c("Run 1","Run 2","Run 3","Run 4")) {
-    fit.drm = drm(log(fi)~expected_conc, data=subset(hier.model.ex.2, assay_id==p), 
-        fct=LL.5(), robust="median")
-    plot(fit.drm, type="all", col="black", main=p, lty=2)
-    plot(get.single.fit(fit.bcrm, p), add=T, log="x", col=1)
-    mylegend(x=9,legend=c("drm, median","bcrm, t4"),lty=c(2,1))
-}
     
 }
 

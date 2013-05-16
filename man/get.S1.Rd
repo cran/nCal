@@ -12,10 +12,10 @@ S1 criterion between two curves is defined as the integrated squared distance di
 S2 is relative bias divivded by the width of t.range.
 }
 \usage{
-get.abc(p1, p2, t.range, vpl=TRUE)
-get.S1(p1, p2, t.range, vpl=TRUE)
-get.S2(p1, p2, t.range, vpl=TRUE)
-get.abs.dev(p1, p2, t.range, y.range, vpl = TRUE)
+get.abc(p1, p2, t.range)
+get.S1(p1, p2, t.range)
+get.S2(p1, p2, t.range)
+get.abs.dev(p1, p2, t.range, y.range)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -31,9 +31,6 @@ a vector two real numbers. The range of log standard concentrations. The first o
   \item{y.range}{
 %%     ~~Describe \code{y.range} here~~
 }
-  \item{vpl}{
-TRUE: 5pl, FALSE: 4pl
-}
 }
 \details{
 p1 and p2 can be in either classical or gh parameterization.
@@ -42,7 +39,43 @@ p1 and p2 can be in either classical or gh parameterization.
 a real number
 }
 \examples{
-    get.abc(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)), vpl=FALSE)
+
+library(RUnit)
+
+checkEqualsNumeric(
+    get.abc(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
+    , 
+    0.04151633
+    , tolerance=1e-7)
+
+
+checkEqualsNumeric(
+    get.S1(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
+    , 
+    0.002697115
+    , tolerance=1e-7)
+
+
+checkEqualsNumeric(
+    get.S2(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
+    , 
+    17.48958
+    , tolerance=1e-7)
+
+
+checkEqualsNumeric(
+    get.abs.dev(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)), y.range=c(5,6))
+    , 
+    0.07903227
+    , tolerance=1e-7)
+
+
+checkException(
+    get.abs.dev(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)), y.range=c(1,11))
+    )
+
+
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

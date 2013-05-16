@@ -14,16 +14,31 @@ file.stem <- function(x)strsplit(x,"\\.")[[1]][1]
 ## Qt     : failed to build (https://r-forge.r-project.org/R/?group_id=454)
 
 ## other toolkits have a nice look but do not behave as intuitively as tcltk
-## both RGtk2,rJava place 'statewidgets' incorrectly
+## for both RGtk2,rJava more care is needed to place 'state widgets'
 
 
-
-## uses the gedit as a status bar - no extra window
-ncalGUI <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt")){
     
-    require(gWidgets) || stop('Please install the gWidgets package')
+## uses the gedit as a status bar - no extra window
+ncalGUI <- function(verbose = FALSE){
+    
+#    x <- 1
+#    env0 <- env <- "ncal.gui.env"
+#    while(1){
+#        if(inherits(try(get(env,envir = .GlobalEnv),silent = TRUE),"try-error")) break
+#        x <- x + 1
+#        env <- env0 %+% x
+#    }
+#    
+#    assign(env,environment(),envir = .GlobalEnv)
+#    if(verbose){
+#        cat("local gui environment can be found in variable ",env," in global environment and it is: \n");
+#        print(environment())
+#    }
+    
+    require(gWidgetstcltk) || stop('Please install the gWidgetstcltk package')
+    options(guiToolkit = "tcltk")
+    
 
-    options(guiToolkit = toolkit[1])
     
     state <- NULL
     state$labels <- list(dependent = "             Response variable                   ",
@@ -31,8 +46,8 @@ ncalGUI <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt")){
                         bcrm.fit = c("drm","robust Bayesian hierarchical model"),
                         input.data.type = c("Luminex raw output .xls","comma-separated file","tab-delimited file"),
                         input.data = "             Data file",
-                        output.data = "             Estimated concentrations",
-                        output.graph ="             Calibration plots                ")
+                        output.data = "             Save estimated concentrations to",
+                        output.graph ="             Save calibration plots to                ")
                          
                          
     state$args <- list( dependent = "log(fi)",
@@ -43,10 +58,9 @@ ncalGUI <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt")){
                         output.graph = path.expand("Calibration_plots.pdf"))
                         
     # the handler list is the list of 'handlers' to access a widget's value
-    state$handlers <- NULL      
-    state$handlers$w <- gwindow("nCal")
-    
+    state$handlers <- NULL  
 
+    state$handlers$w <- gwindow("nCal")
 
     # the container list is a list of 'handlers' of a widget associated with where the widget is contained
     # it should rather be called 'location.handler' or sg like that 
@@ -76,7 +90,7 @@ ncalGUI <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt")){
 
     # radio input dataset type
     state$containers$file.type <- ggroup(container = state$handlers$w)
-    glabel("             Data type    ",container = state$containers$file.type)
+    glabel("             Data file format    ",container = state$containers$file.type)
 #        glabel("                 " ,container = state$containers$file.type)    
     state$handlers$input.data.type<-gradio(state$labels$input.data.type, 
            selected = 1, horizontal = TRUE,container = state$containers$file.type)           
@@ -85,26 +99,26 @@ ncalGUI <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt")){
     state$containers$dependent <- ggroup(container = state$handlers$w)
     glabel(state$labels$dependent,container = state$containers$dependent)
     state$handlers$dependent <- gedit(text = state$args$dependent, width = 32,initial.msg=state$args$dependent, container = state$containers$dependent) 
-#   svalue(state$handlers$dependent) <- state$args$dependent #initial value
+    svalue(state$handlers$dependent) <- state$args$dependent #initial value
     
     state$containers$predictor <- ggroup(container = state$handlers$w)
     glabel(state$labels$predictor,container = state$containers$predictor)
     state$handlers$predictor <- gedit(text = state$args$predictor, width = 32,initial.msg=state$args$predictor, container = state$containers$predictor) 
-#   svalue(state$handlers$predictor) <- state$args$predictor #initial value
-    
-    glabel("Output files:",container = ggroup(container = state$handlers$w))
+    svalue(state$handlers$predictor) <- state$args$predictor #initial value
+     
+    glabel("Output:",container = ggroup(container = state$handlers$w))
 
     # name of output dataset
     state$containers$output.data <- ggroup(container = state$handlers$w)
     glabel(state$labels$output.data,container = state$containers$output.data)
-    state$handlers$output.data <- gfilebrowse (text = state$args$output.data, type = "save", quote = TRUE, width=60,
+    state$handlers$output.data <- gfilebrowse (text = state$args$output.data, type = "save", quote = TRUE, width=40,
     container = state$containers$output.data,handler = function(h,...)svalue(h$obj) <- file.path(svalue(h$obj)))
 #   svalue(state$handlers$output.data) <- state$args$output.data #initial value
 
     # name of output plots      
     state$containers$output.graph <- ggroup(container = state$handlers$w)
     glabel(state$labels$output.graph,container = state$containers$output.graph)
-    state$handlers$output.graph <- gfilebrowse (text = state$args$output.graph, type = "save",quote = TRUE, width=60,
+    state$handlers$output.graph <- gfilebrowse (text = state$args$output.graph, type = "save",quote = TRUE, width=40,
     container = state$containers$output.graph,handler = function(h,...)svalue(h$obj) <- file.path(svalue(h$obj)))
 #   svalue(state$handlers$output.graph) <- state$args$output.graph #initial value
 
@@ -115,10 +129,53 @@ ncalGUI <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt")){
     state$handlers$bcrm.fit<-gradio(state$labels$bcrm.fit, 
            selected = as.numeric(state$args$bcrm.fit) + 1, horizontal = TRUE,container = state$containers$fit)         
 #   svalue(state$handlers$bcrm.fit) <- state$labels$bcrm.fit[as.numeric(state$args$bcrm.fit) + 1] #initial value
+
+    call.getConc.fun <- function(h,...){
+        state <- get("state",envir = h$action)
         
+        ncal.fit <- try(get("gui.current.fit",envir = h$action))
+        if(inherits(ncal.fit,"try-error")){
+            enabled(state$handlers$sb) <- TRUE
+            svalue(state$handlers$sb) <- c("No models were found, please fit a model first.")
+            enabled(state$handlers$sb) <- FALSE 
+            dispose(state$handlers$data.getConc)            
+            return
+        }
+        ncal.fit <- attr(ncal.fit,"fits")[[1]]
+
+        new.y <- svalue(state$handlers$data.getConc)
+        new.y <- strsplit(new.y , ",")
+        new.y <- paste(new.y[[1]],collapse = " ")
+        new.y <- strsplit(new.y , " ")
+        new.y <- as.numeric(new.y[[1]])     
+        new.y <- new.y[!is.na(new.y)]
+        ncal.pred <- try(do.call("getConc",list(ncal.fit,new.y)))
+
+        if(inherits(ncal.pred,"try-error")){
+            enabled(state$handlers$sb) <- TRUE
+            svalue(state$handlers$sb) <- ncal.pred
+            enabled(state$handlers$sb) <- FALSE 
+            #dispose(state$handlers$data.getConc)           
+            return
+        }
+
+        
+        # add pop-up window here. note that window is created invisible until it is filled
+        ncal.pred <- as.matrix(ncal.pred) 
+        state$handlers$ncal.pred.window <- gwindow(visible = FALSE)
+        state$handlers$ncal.pred.window.text <- gtext(container = state$handlers$ncal.pred.window,wrap = FALSE) 
+        insert(state$handlers$ncal.pred.window.text,capture.output(ncal.pred),wrap = FALSE)
+        visible(state$handlers$ncal.pred.window) <- TRUE
+        #size(state$handlers$ncal.pred.window) <- as.integer(size(state$handlers$ncal.pred.window) * c(1.5,1) )
+        
+        #dispose(state$handlers$data.getConc) #clears text in gtext()
+        assign("state",state,envir = h$action) #save state change
+        return
+    }
+    
 
     update.status.fun <- function(h,...){
-
+        state <- get("state",envir = h$action)
         ####################################################################################
         ## Do not proceed if user hasn't selected a file
         ## But gfile() forcing a selection is annoying
@@ -149,22 +206,24 @@ ncalGUI <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt")){
         ncal.arg <- NULL
         ncal.arg$file <- svalue(state$handlers$input.data)
 
-        #ncal.arg$is.luminex.xls <- (file.ext(ncal.arg$file) == "xls")
+        
+       #ncal.arg$is.luminex.xls <- (file.ext(ncal.arg$file) == "xls")
         # # data.type.index is in {1,2,3} for gradio if .xls,.csv,.tsv or '0' if something that should not have happened
         data.type.index <- match(svalue(state$handlers$input.data.type),state$labels$input.data.type,nomatch = 0)
         ncal.arg$is.luminex.xls <- (data.type.index == 1)
         ncal.arg$formula <- as.formula(paste(svalue(state$handlers$dependent),"~",svalue(state$handlers$predictor)))
         ncal.arg$bcrm.fit <- as.logical(match(svalue(state$handlers$bcrm.fit),state$labels$bcrm.fit,nomatch = 1) - 1)
-        
+        ncal.arg$return.fits <- TRUE
         ####################################################################################        
         mypdf(mfrow=c(3,4), file = file.stem(svalue(state$handlers$output.graph)))
         result <- try(do.call("ncal.character",ncal.arg))
         if(!inherits(result,'try-error')){
+            assign("gui.current.fit",result,envir = h$action)
             write.csv(result,file = svalue(state$handlers$output.data),row.names = FALSE)
-
             enabled(state$handlers$sb) <- TRUE          
             svalue(state$handlers$sb) <- "Done. Waiting for user input ..."
             enabled(state$handlers$sb) <- FALSE         
+            enabled(state$handlers$apply.getConc) <- TRUE #enable the APPLY-button          
         }else{
             enabled(state$handlers$sb) <- TRUE
             svalue(state$handlers$sb) <- result
@@ -175,22 +234,36 @@ ncalGUI <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt")){
                 
     }
 
-    
     # 'OK' or 'EXIT'
     ok_exit <- ggroup(container = state$handlers$w)
     addSpring(ok_exit)
     state$handlers$ok <- gbutton("GO", container = ok_exit, handler = update.status.fun,action = environment())
-    addSpace(ok_exit, 20)
-    state$handlers$exit <- gbutton("Close", container = ok_exit,
-                        handler = function(h, ...){dispose(state$handlers$w);quit(save = "no")})
+    addSpace(ok_exit, 40)
+    #state$handlers$exit <- gbutton("Close", container = ok_exit,
+    #                    handler = function(h, ...){dispose(state$handlers$w);try(dispose(state$handlers$ncal.pred.window));quit(save = "no")})
+    glabel("  ",container = ggroup(container = state$handlers$w))
 
+    
+    glabel("Apply the last fitted curve to the new data below:",container = ggroup(container=state$handlers$w))
+    
+    state$containers$getConc.2 <- ggroup(container = state$handlers$w)
+    addSpace(state$containers$getConc.2, 15)
+    state$handlers$data.getConc <- gedit(text = "", width = 80,initial.msg="", container = state$containers$getConc.2 )
+
+    state$containers$getConc <- ggroup(container = state$handlers$w)
+    addSpring(state$containers$getConc)
+    state$handlers$apply.getConc <- gbutton("APPLY", container = state$containers$getConc, handler = call.getConc.fun, action = environment())
+    addSpace(state$containers$getConc, 40)
+    enabled(state$handlers$apply.getConc) <- FALSE
+    
     # unlike status bar, height is fixed here !                 
     state$handlers$sb <- gedit("Waiting for user input ...",container = state$handlers$w)
     enabled(state$handlers$sb) <- FALSE # user cannot type 
 }
 
 
-
+# deprecated
+# state of gui is kept by a separate window
 ncalGUI.2 <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt"),visible.state = FALSE){
     
     require(gWidgets) || stop('Please install the gWidgets package')
@@ -203,8 +276,8 @@ ncalGUI.2 <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt"),vis
                         bcrm.fit = c("Fit drm","Fit robust Bayesian hierarchical model"),
                         input.data.type = c("Luminex raw output xls file","csv file containing table only","tab-delimited file containing table only"),
                         input.data = "Input data file",
-                        output.data = "Estimated concentrations",
-                        output.graph = "Calibration plots")
+                        output.data = "Save estimated concentrations to",
+                        output.graph = "Save calibration plots to")
                          
                          
     state$args <- list( dependent = "log(fi)",
@@ -362,7 +435,6 @@ ncalGUI.2 <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt"),vis
     statew <- gwindow(visible = visible.state)
     statew.handler <- gedit("wait",container = statew)
     svalue(statew.handler) <- "wait"                    
-
     
     # env <- environment()
     # assign('statew',statew,envir = env)
@@ -378,8 +450,5 @@ ncalGUI.2 <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt"),vis
     addSpace(ok_exit, 20)
     state$handlers$exit <- gbutton("Exit", container = ok_exit,
                         handler = function(h, ...){dispose(state$handlers$w);dispose(statew);quit(save = "no")})
-
-    
-                        
 }
     

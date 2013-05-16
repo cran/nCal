@@ -72,3 +72,12 @@
     * submit to CRAN
     * paper submission
     * remove drm.weights.var.power, a global variable that controls variance
+
+2013-05-28  V_0.2-1 Youyi Fong
+    * pass stringsAsFactors =FALSE to data.frame
+    * repond to referee comments, add vignette, add tests, change package
+    dependencies
+    * fix bug in ncal.character
+    * remove incr and auto.detect.incr and handle decreasing more smartly
+	* framed.sty needs to be present where kpsewhich.exe locates
+	* qpdf is downloaded and path added, ghostscrip

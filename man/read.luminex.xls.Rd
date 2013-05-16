@@ -38,20 +38,20 @@ string. Command used to execute perl. If perl.exe is not in the path, the full p
 
 \examples{
 
-\dontrun{
-# Do not run during R CMD check --as-cran since it takes longer than 5s
+#begin=Sys.time()
 
-## example from https://www.labkey.org/wiki/home/Documentation/page.view?name=luminexFileFormats
-
-dat <- read.luminex.xls(paste(system.file(package="nCal")[1],'/misc/02-14A22-IgA-Biotin.xls',
-    sep=""))
-str(dat)
-dat=subset(dat, (well_role=="Standard" | well_role=="Unknown") & analyte=="ENV1 (31)")
-
+# example from https://www.labkey.org/wiki/home/Documentation/page.view?name=luminexFileFormats
+dat = read.luminex.xls(paste(system.file(package="nCal")[1],
+    '/misc/02-14A22-IgA-Biotin-tiny.xls', sep=""), verbose=TRUE)
 out = ncal(log(fi)~expected_conc, dat, return.fits = TRUE, plot.se.profile=FALSE)
 out
 
-}
+library(RUnit)
+checkEqualsNumeric(unlist(out[1,c("est.log.conc","se")]), c(-7.3449112, 0.79966084), tolerance=1e-6)
+checkEqualsNumeric(unlist(out[12,c("est.log.conc","se")]), c(3.6101613, 0.10138050), tolerance=1e-6)
+
+#end=Sys.time();print(end-begin)
+
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

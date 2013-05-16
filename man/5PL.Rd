@@ -33,11 +33,11 @@ Functions Related to 5PL Function
 FivePL.t (t,param)
 FivePL.t.func (param) 
 FivePL.x (x,param)
-FivePL.x.inv (y,param, incr)
+FivePL.x.inv (y,param)
 FivePL.x.inv.func (param)
-FivePL.t.inv (y,param, incr) 
+FivePL.t.inv (y,param) 
 FivePL.t.inv.func (param) 
-FourPL.x.inv (y, param, incr=TRUE)  
+FourPL.x.inv (y, param)  
 FourPL.x (x, param)
 FourPL.t.func (param)
 cla2gh (param)
@@ -61,7 +61,6 @@ ED5PL (param, tao)
   \item{t}{numeric vector. Log concentrations.}
   \item{x}{numeric vector. Concentrations.}
   \item{y}{numeric vector. Response.}
-  \item{incr}{Boolean. If TRUE, 5PL is monotonically increasing; else decreasing.}
   \item{sd.e}{sd.e}
   \item{tao}{vector of numbers or single number. Effective doses. Vectorized for this argument.}
 }
@@ -71,8 +70,20 @@ FivePL.t and other functions are vectorized for the x and the y arguments.
 \author{ Youyi Fong \email{yfong@fhcrc.org}, Xuesong Yu, William N. Cumberland }
 \examples{
 
-FivePL.t(5:6, p.eotaxin[1,])
-FivePL.x.inv(1:11, p.eotaxin[1,], incr=TRUE)
+library(RUnit)
+
+
+
+
+
+checkEqualsNumeric(FivePL.t(5:6, p.eotaxin[1,]), c(8.118479, 9.178339), tolerance=1e-6)
+checkEqualsNumeric(FivePL.t.func(p.eotaxin[1,])(5:6), c(8.118479, 9.178339), tolerance=1e-6)
+
+
+checkEqualsNumeric(FivePL.x.inv(c(4,5,11), p.eotaxin[1,]), c(0,10.35459,Inf), tolerance=1e-5)
+
 FivePL.t.inv.func(p.eotaxin[1,])
+
+
 
 }

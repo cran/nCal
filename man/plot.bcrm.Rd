@@ -8,9 +8,9 @@ Plot function for the bcrm object
 Plot function for the bcrm object
 }
 \usage{
-\method{plot}{bcrm} (x, assay_id = NULL, add = FALSE, lcol = 1, main = NULL, x2 = NULL, 
+\method{plot}{bcrm} (x, assay_id = NULL, add = FALSE, lcol = 1, main = NULL, fit.2 = NULL, 
     lwd = 0.1, points.only = FALSE, all.lines.only = FALSE, t = NULL, ylim = NULL, 
-    same.ylim = FALSE, lty3 = NULL, x3 = NULL, lcol2 = NULL, lcol3 = NULL, xlab = NULL,
+    same.ylim = FALSE, lty3 = NULL, fit.3 = NULL, lcol2 = NULL, lcol3 = NULL, xlab = NULL,
     ylab = NULL, col.outliers = TRUE, lty = 1, cex = 1, log = "x", ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -30,8 +30,8 @@ Plot function for the bcrm object
   \item{main}{
 %%     ~~Describe \code{main} here~~
 }
-  \item{x2}{
-%%     ~~Describe \code{x2} here~~
+  \item{fit.2}{
+%%     ~~Describe \code{fit.2} here~~
 }
   \item{lwd}{
 %%     ~~Describe \code{lwd} here~~
@@ -54,8 +54,8 @@ Plot function for the bcrm object
   \item{lty3}{
 %%     ~~Describe \code{lty3} here~~
 }
-  \item{x3}{
-%%     ~~Describe \code{x3} here~~
+  \item{fit.3}{
+%%     ~~Describe \code{fit.3} here~~
 }
   \item{lcol2}{
 %%     ~~Describe \code{lcol2} here~~

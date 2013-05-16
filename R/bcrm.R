@@ -1,6 +1,12 @@
+# if need to run this manually
+#load("D:/gDrive/R_packages/nCal/R/sysdata.rda")
+
+
 # n.iter=1e5; jags.seed=1; n.thin=NULL; keep.data=TRUE; keep.jags.samples=FALSE; t.unk.truth=NULL; params.true=NULL; T.init=NULL; prior.sensitivity=NULL; verbose=F #default
 bcrm = function (formula, data, error.model, informative.prior, 
-    prior.sensitivity=NULL, n.iter=1e5, jags.seed=1, n.thin=NULL, T.init=NULL, keep.data=TRUE, keep.jags.samples=FALSE, standards.only=TRUE, verbose=FALSE,
+    fit.4pl=FALSE,
+    prior.sensitivity=NULL, n.iter=1e5, jags.seed=1, n.thin=NULL, T.init=NULL, keep.data=TRUE, keep.jags.samples=FALSE, standards.only=TRUE, n.adapt=1e3,
+    verbose=FALSE,
     # for simulation study only
     t.unk.truth=NULL, params.true=NULL)
 {
@@ -8,9 +14,11 @@ bcrm = function (formula, data, error.model, informative.prior,
     load.rjags=try(require(rjags))
     if (!load.rjags) stop("rjags does not load successfully. Is JAGS installed?")
     
-    if (standards.only) data=data[data$well_role=="Standard",]
+    if (fit.4pl) {
+        if (!error.model %in% c("gh_norm","gh_t4")) stop("Error models supported with 4PL are only gh_norm and gh_t4.")
+    }
     
-    dat.model.frame=model.frame(formula, data)
+    if (standards.only) data=data[data$well_role=="Standard",]
     
     if (verbose) print(error.model)
     
@@ -22,6 +30,38 @@ bcrm = function (formula, data, error.model, informative.prior,
     n.replicate=max(data$replicate)
     if (n.replicate>2) stop("Only two replicates are supported for now")
         
+    if (all.names(formula)[2]=="log") log.transform=T else log.transform=F
+    outcome.coln=all.vars(formula)[1]
+    predictor.coln=all.vars(formula)[2]
+    
+    # make sure sample_id is NA for Standard and is 1:S for Unknown
+    data$sample_id[data$well_role=="Standard"]=NA
+    data$sample_id[!is.na(data$sample_id)]=as.numeric(as.factor(data$sample_id[!is.na(data$sample_id)]))
+            
+    # create i.curve column to index curves, used by the error.model file
+    data$i.curve=as.numeric(as.factor(data$assay_id))
+    n.curve=max(data$i.curve)
+    
+    # do drm fits, fitted parameter will be used to get initial values for samplers and set the hyperparameter for mean
+    if (verbose) print("bcrm 200")
+    fits = attr(ncal(formula, data, return.fits=TRUE, force.fit=TRUE, plot.se.profile=FALSE, auto.layout=FALSE, plot=FALSE), "fits")
+    params.drm = mysapply(fits, coef)
+    
+    if (sum(params.drm[,"b"]<0)>n.curve/2) {
+        # majority are increasing curve
+        incr.=TRUE
+        params.drm[,"b"] = -abs(params.drm[,"b"]) # force all curves to have the same monotonicity
+    } else {
+        # majority are decreasing curve
+        incr.=FALSE
+        # convert predictor
+        data[[predictor.coln]] = 1/data[[predictor.coln]]
+        fits = attr(ncal(formula, data, return.fits=TRUE, force.fit=TRUE, plot.se.profile=FALSE, auto.layout=FALSE, plot=FALSE), "fits")
+        params.drm = mysapply(fits, coef)
+        params.drm[,"b"] = -abs(params.drm[,"b"]) # force all curves to have the same monotonicity
+    }
+    
+    dat.model.frame=model.frame(formula, data)
     # ordering the data helps later to tell which is which in the indicators
     data=data[order(data$replicate),]        
     data=data[order(dat.model.frame[[2]]),]
@@ -29,23 +69,15 @@ bcrm = function (formula, data, error.model, informative.prior,
     assay_names=unique(data$assay_id)
     data=rbind(data[data$well_role=="Standard",], data[data$well_role=="Unknown",])
     
+    
     # create seqno column, assuming all curves have the same dilution!
-    data$seqno=as.numeric(as.factor(data$expected_conc))
+    data$seqno=as.numeric(as.factor(data[[predictor.coln]]))
     nDil=max(data$seqno,na.rm=TRUE)
     
-    # create i.curve column to index curves, used by the error.model file
-    data$i.curve=as.numeric(as.factor(data$assay_id))
-    n.curve=max(data$i.curve)
+    if (verbose) print("bcrm 100")
     
     if(is.null(T.init)) T.init=array(0,dim=c(n.curve,n.replicate,nDil)) # T is now a 3-dimensional vector
     
-    # make sure sample_id is NA for Standard and is 1:S for Unknown
-    data$sample_id[data$well_role=="Standard"]=NA
-    data$sample_id[!is.na(data$sample_id)]=as.numeric(as.factor(data$sample_id[!is.na(data$sample_id)]))
-            
-    # do drm fits, fitted parameter will be used to get initial values for samplers and set the hyperparameter for mean
-    fits = attr(ncal(formula, data, return.fits=TRUE, force.fit=TRUE, plot.se.profile=FALSE, auto.layout=FALSE, plot=FALSE), "fits")
-    params.drm = mysapply(fits, coef)
     if (startsWith(error.model,"gh_")) {
         theta.init=cla2gh(params.drm)
         theta.init[,4]=log(theta.init[,4])
@@ -66,6 +98,8 @@ bcrm = function (formula, data, error.model, informative.prior,
     if (verbose) print("bcrm 100")
     if (verbose) print(theta.init)
     
+        
+    if (verbose) print("bcrm 300")
     if (!is.null(prior.sensitivity)) {
         if (prior.sensitivity==1){
             scale.f=2
@@ -116,6 +150,7 @@ bcrm = function (formula, data, error.model, informative.prior,
     
 #    wd=3 # weak
 #    wd=10 # strong
+    if (verbose) print("bcrm 400")
     if(informative.prior) {
         dof.wish=8; R=R
         v=mean.distr[1,]; m=diag(mean.distr[2,])
@@ -130,13 +165,14 @@ bcrm = function (formula, data, error.model, informative.prior,
     
     if (verbose) print("bcrm 200")
     jags.data = list(
-        "t"=log(dat.model.frame[[2]]), "y"=dat.model.frame[[1]], "i.curve"=data$i.curve, "I"=n.curve, "K"=sum(data$well_role=="Standard"), "nDil"=nDil, "seqno"=data$seqno, "var.comp"=var.comp,
+        "t"=log(dat.model.frame[[2]]), "y"=dat.model.frame[[1]], "i.curve"=data$i.curve, "I"=n.curve, "K"=sum(data$well_role=="Standard"), 
+            "nDil"=nDil, "seqno"=data$seqno, "var.comp"=var.comp,
         "dof.wish"=dof.wish, "R"= R,         
         "v"=v, "m"=m, 
 #        dof.wish.1=wd + 4, "R1"= diag(diag(var.matrix))*(wd-2), 
         "precision.matrix"=diag(1/diag(var.matrix)),
         "var.comp.2"=var.comp.2,        
-        "t.min"=min(log(data$expected_conc), na.rm=TRUE), "t.max"=max(log(data$expected_conc), na.rm=TRUE),
+        "t.min"=min(log(data[[predictor.coln]]), na.rm=TRUE), "t.max"=max(log(data[[predictor.coln]]), na.rm=TRUE),
         "replicate"=data$replicate
     )
     if (error.model=="classical_replicate_re" | error.model=="gh_replicate_re") {
@@ -155,7 +191,7 @@ bcrm = function (formula, data, error.model, informative.prior,
         "r"=8,
         #"t.unk.sample"=mean(min(log(data$expected_conc), na.rm=TRUE)),
         "theta"=theta.init, "theta.0"=colMeans(theta.init), "TAO"=diag(1/diag(var.matrix)),
-        .RNG.name="base::Mersenne-Twister", .RNG.seed=jags.seed +11
+        .RNG.name="base::Mersenne-Twister", .RNG.seed=as.integer(jags.seed +11)
     ) 
     if (!error.model %in% c("classical_norm","classical_t4","classical_replicate_re","classical_tar1","gh_norm","gh_replicate_re","gh_tar1","gh_t4")) {
         jags.inits=c(jags.inits, list("T"=T.init)) # c(jags.init, "T"=T.init) won't work
@@ -173,7 +209,13 @@ bcrm = function (formula, data, error.model, informative.prior,
     ################
     # trace.var
     
-    pname=c("c","d","f","g","h") # these have to be alphabetically ordered, so as to match the order of columns in jags samples
+    if (verbose) print("bcrm 400")
+    # these have to be alphabetically ordered, so as to match the order of columns in jags samples
+    if (fit.4pl) {
+        pname=c("c","d","g","h") 
+    } else {
+        pname=c("c","d","f","g","h") 
+    }
     if (endsWith(error.model,"replicate_re")) {
         trace.var="p"%+% pname
     } else trace.var=pname
@@ -187,7 +229,6 @@ bcrm = function (formula, data, error.model, informative.prior,
     }        
     if (!standards.only & length(setdiff(unique(data$sample_id),NA))>0) trace.var=c(trace.var, "t.unk.sample", "T.unk")
     
-    
     ################
     # run jags
     
@@ -195,8 +236,13 @@ bcrm = function (formula, data, error.model, informative.prior,
     # try three times
     jags.success=F
     for (i.try in 1:3) {
+        # if n.adapt!=0, it seems that if jags.model is called multiple times, different results may be obtained
+        # my guess is that if end.adaptation is TRUE in adapt() (called by jags.model), this behavior will change
+        # but the first call when R is started always the same
+        # if we set n.adapt to 0, performance suffers
         jags.model.1 = try(suppressWarnings(
-            jags.model(file=system.file(package="nCal")[1]%+%"/jags_script/model_"%+%error.model%+%".txt", data=jags.data, inits=jags.inits, n.chains = 1, n.adapt=1e3, quiet=TRUE)
+            jags.model(file=system.file(package="nCal")[1]%+%"/jags_script/model_"%+%error.model%+%ifelse(fit.4pl,"_4pl","")%+%".txt", data=jags.data, inits=jags.inits, 
+                n.chains = 1, n.adapt=n.adapt, quiet=TRUE) 
          ), silent=FALSE)
         if (inherits(jags.model.1, "try-error")) {
             print("jags.model fails, try with a different seed")            
@@ -207,6 +253,8 @@ bcrm = function (formula, data, error.model, informative.prior,
         }
     }
     if (!jags.success) return (NULL)
+    
+    
     
     if (is.null(n.thin)) {
         # choose a n.thin so that  samples are saved
@@ -232,17 +280,35 @@ bcrm = function (formula, data, error.model, informative.prior,
         if (ncol(samples.2)==0) samples.2=samples[, regexpr("^p[cdghf]", colnames(samples))!=-1,drop=F ] # if there is only one curve, the column names are b,c,d,e,f
         colnames(samples.2)=substr(colnames(samples.2),2,1000)
     }
-#    print(str(samples.2))
-#    print(pname)
+    
+    if(!incr.) {
+        if (startsWith(error.model,"gh_")) {
+            # convert param
+            if (verbose) {
+                print("decreasing ...")
+                print(str(samples.2))
+            }
+            samples.2[, which(startsWith(colnames(samples.2),"g"))] = - samples.2[, which(startsWith(colnames(samples.2),"g"))]
+            samples.2[, which(startsWith(colnames(samples.2),"h"))] = - samples.2[, which(startsWith(colnames(samples.2),"h"))]
+        
+            # convert predictor back
+            data[[predictor.coln]] = 1/data[[predictor.coln]]        
+        } else
+            stop("decreasing curve can only be fitted with error models under gh parameterization")
+    }
+    
+    
+    #print(str(samples.2))
+    #print(pname)
     fit$median.coef =matrix(apply(samples.2, 2, median),                        nrow=n.curve, dimnames=list(assay_names, pname)) # median is better than mean here for abc
-    fit$mean.coef=matrix(apply(samples.2, 2, mean),                        nrow=n.curve, dimnames=list(assay_names, pname)) 
+    fit$mean.coef=matrix(apply(samples.2, 2, mean),                             nrow=n.curve, dimnames=list(assay_names, pname)) 
     fit$mode.coef=matrix(apply(samples.2, 2, function(x) {den<-density(x); den$x[which(den$y==max(den$y))]}),                        nrow=n.curve, dimnames=list(assay_names, pname)) 
     fit$sd.coef=     matrix(apply(samples.2, 2, sd),                            nrow=n.curve, dimnames=list(assay_names, pname))
     fit$low.coef=    matrix(apply(samples.2, 2, function(x) quantile(x,0.025)), nrow=n.curve, dimnames=list(assay_names, pname))
     fit$high.coef=   matrix(apply(samples.2, 2, function(x) quantile(x,0.975)), nrow=n.curve, dimnames=list(assay_names, pname))
     fit$coefficients=fit$median.coef
     fit$coef.samples=samples.2
-    
+
 #    if (!is.null(params.true)) {
 #        for (k in 1:n.curve) {
 #            f0=FivePL.t.func(params.true[k,])
@@ -256,7 +322,7 @@ bcrm = function (formula, data, error.model, informative.prior,
 #    fit$abc=
     
     fit$fitted = sapply(1:nrow(data[data$well_role=="Standard",]), function(i.row) {
-        FivePL.x(data$expected_conc[i.row], fit$coefficients[data[i.row,"assay_id"],])
+        FivePL.x(data[[predictor.coln]][i.row], fit$coefficients[data[i.row,"assay_id"],])
     })
     fit$resid=log(data$fi[data$well_role=="Standard"])-fit$fitted
     
@@ -319,22 +385,31 @@ bcrm = function (formula, data, error.model, informative.prior,
     }
     fit$error.model=error.model
     fit$bad.se=FALSE
+    fit$formula=formula
+    
     return (fit)        
 }
 
 
 
+# the first parameter has to be x b/c S3 method prototype
 # if assay_id is not null, then only one curve is plotted, e.g. "LMX004-L-RV144"
-# when x2 is not null, then the second x is used to plot another line
+# when fit.2 is not null, then the second x is used to plot another line
 # only works with two replicates for now
 # log="x" means concentration is plotted, otherwise, log concentration is plotted
-# assay_id=NULL; add=F; lcol=1; main=NULL; x2=NULL; lwd=1; points.only=FALSE; all.lines.only=FALSE; t=NULL; ylim=NULL
-plot.bcrm=function(x, assay_id=NULL, add=FALSE, lcol=1, main=NULL, x2=NULL, lwd=.1, points.only=FALSE, all.lines.only=FALSE, t=NULL, ylim=NULL, same.ylim=FALSE, 
-    lty3=NULL,x3=NULL,lcol2=NULL,lcol3=NULL,xlab=NULL,ylab=NULL,col.outliers=TRUE,lty=1,cex=1,log="x",...){
+# assay_id=NULL; add=F; lcol=1; main=NULL; fit.2=NULL; lwd=1; points.only=FALSE; all.lines.only=FALSE; t=NULL; ylim=NULL
+plot.bcrm=function(x, assay_id=NULL, add=FALSE, lcol=1, main=NULL, fit.2=NULL, lwd=.1, points.only=FALSE, all.lines.only=FALSE, t=NULL, ylim=NULL, same.ylim=FALSE, 
+    lty3=NULL,fit.3=NULL,lcol2=NULL,lcol3=NULL,xlab=NULL,ylab=NULL,col.outliers=TRUE,lty=1,cex=1,log="x",...){
     
     dat=x$data
     dat=dat[dat$well_role=="Standard",]
     if (!is.null(assay_id)) assay_names=assay_id else assay_names=unique(dat$assay_id)
+    
+    formula=x$formula
+    if (all.names(formula)[2]=="log") log.transform=T else log.transform=F
+    outcome.coln=all.vars(formula)[1]
+    predictor.coln=all.vars(formula)[2]
+    
     
     # add mixture.indicators to the data frame
     if (!is.null(x$mixture.indicators) ) {
@@ -344,7 +419,7 @@ plot.bcrm=function(x, assay_id=NULL, add=FALSE, lcol=1, main=NULL, x2=NULL, lwd=
     } 
     
     if (all.lines.only) {
-        t=log(dat$expected_conc)[dat$assay_id==assay_names[1]]
+        t=log(dat[[predictor.coln]])[dat$assay_id==assay_names[1]]
         y=log(dat$fi)[dat$assay_id==assay_names[1]]
         if(log!="x") {
             plot(t,y,main=ifelse(is.null(main),"",main),type="n",ylim=ylim,xlab=xlab,ylab=ylab)
@@ -357,9 +432,9 @@ plot.bcrm=function(x, assay_id=NULL, add=FALSE, lcol=1, main=NULL, x2=NULL, lwd=
     for(a in assay_names) {
         dat.a=dat[dat$assay_id==a,]
         # order points
-        dat.a=dat.a[order(dat.a$expected_conc),]
+        dat.a=dat.a[order(dat.a[[predictor.coln]]),]
         
-        t=log(dat.a$expected_conc)
+        t=log(dat.a[[predictor.coln]])
         
         # plot points
         if (!add & !all.lines.only) {
@@ -385,11 +460,11 @@ plot.bcrm=function(x, assay_id=NULL, add=FALSE, lcol=1, main=NULL, x2=NULL, lwd=
             x.1=t.1
             if(log=="x") x.1=exp(t.1)
             lines(x.1, FivePL.t(t.1, x$coefficients[a,]), lty=lty, col=lcol, lwd=lwd)
-            if (!is.null(x2)) {
-                lines(x.1, FivePL.t(t.1, x2$coefficients[a,]), lty=lty, col=ifelse(is.null(lcol2),2,lcol2), lwd=lwd)
+            if (!is.null(fit.2)) {
+                lines(x.1, FivePL.t(t.1, fit.2$coefficients[a,]), lty=lty, col=ifelse(is.null(lcol2),2,lcol2), lwd=lwd)
             }
-            if (!is.null(x3)) {
-                lines(x.1, FivePL.t(t.1, x3$coefficients[a,]), lty=ifelse(is.null(lty3),lty,lty3), col=ifelse(is.null(lcol2),3,lcol3), lwd=lwd)
+            if (!is.null(fit.3)) {
+                lines(x.1, FivePL.t(t.1, fit.3$coefficients[a,]), lty=ifelse(is.null(lty3),lty,lty3), col=ifelse(is.null(lcol2),3,lcol3), lwd=lwd)
             }
         }
     }
@@ -403,9 +478,17 @@ print.bcrm=function (x, ...) {
 
 coef.bcrm=function(object, type="gh", ...) {
     if(type=="gh") {
-        object$median.coef[1,c("c","d","g","h","f")]
+        if(ncol(object$coefficients)==5) {
+            object$median.coef[1,c("c","d","g","h","f")]
+        } else {
+            object$median.coef[1,c("c","d","g","h")]            
+        }
     } else if (type=="classical") {
-        gh2cla(object$median.coef[1,])
+        if(ncol(object$coefficients)==5) {
+            gh2cla(object$median.coef[1,])
+        } else {
+            gh2cla(object$median.coef[1,c("c","d","g","h")])
+        }
     } else stop("type not supported")    
 }
 
@@ -432,7 +515,7 @@ getVarComponent.bcrm=function (fit) {
 
 # y is the left hand side of the formula
 predict.bcrm=function (fit, y){
-    xx=apply(fit$coef.samples,1, function (param) FivePL.x.inv(y, param, incr=TRUE) )
+    xx=apply(fit$coef.samples,1, function (param) FivePL.x.inv(y, param) )
     median(xx)    
 }
 
@@ -441,7 +524,7 @@ get.single.fit=function(fit, assay_id) {
     single.fit=fit
     single.fit$median.coef=fit$median.coef[assay_id,,drop=F]    
     id=match(assay_id,assay_names)
-    single.fit$coef.samples=fit$coef.samples[,id+length(assay_names)*0:4]
+    single.fit$coef.samples=fit$coef.samples[,id+length(assay_names)*0:(ncol(single.fit$coefficients)-1)]
     dimnames(single.fit$coef.samples)[[2]]=substr(dimnames(single.fit$coef.samples)[[2]],1,1)
     #single.fit$varcomp=fit$varcomp[id+length(assay_names)*0:1]
     single.fit$data=single.fit$data[single.fit$data$assay_id==assay_id,]

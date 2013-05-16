@@ -129,6 +129,7 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=FALSE, 
         if (class(fit)=="try-error") return (NULL) 
         else {
             if (verbose) print("return forced fit")
+            names(fit$coefficients)=substr(names(fit$coefficients), 1,1) # For now, it seems better to do this
             return (fit)
         }
     } else {

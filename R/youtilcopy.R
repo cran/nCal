@@ -759,7 +759,7 @@ mypostscript=function (file="temp", mfrow=c(1,1), mfcol=NULL, width=NULL, height
         } else if (nrow==2 & ncol==1) {width=6.7; height=9.7
         } else if (nrow==5 & ncol==1) {width=5; height=13
         } else if (nrow==3 & ncol==2) {width=6.7; height=10.3
-        } else if (nrow==4 & ncol==3) {width=9; height=12.5 
+        } else if (nrow==4 & ncol==3) {width=9; height=12
         } else stop ("nrow x ncol not supported: "%+%nrow%+%" x "%+%ncol)
     }
     
@@ -2667,14 +2667,14 @@ keepWarnings <- function(expr) {
     list(value=value, warnings=localWarnings) 
 } 
 
-mymatplot=function(x, make.legend=T, legend=NULL, legend.x=9, lty=1:5, pch=NULL, col=1:6, legend.title=NULL, xlab=NULL, ylab="", draw.x.axis=T, ...) {
+mymatplot=function(x, make.legend=T, legend=NULL, legend.x=9, lty=1:5, pch=NULL, col=1:6, legend.title=NULL, xlab=NULL, ylab="", draw.x.axis=T, bg=NULL, ...) {
     if (is.null(xlab)) xlab=names(dimnames(x))[1]
     if (is.null(legend.title)) legend.title=names(dimnames(x))[2]
-    matplot(x=x, lty=lty, pch=pch, col=col, xlab=xlab, xaxt="n", ylab=ylab, ...)
+    matplot(x=x, lty=lty, pch=pch, col=col, xlab=xlab, xaxt="n", ylab=ylab, bg=bg, ...)
     if(draw.x.axis) axis(side=1, at=1:nrow(x), labels=rownames(x))
     if (make.legend) {
         if (is.null(legend)) legend=colnames(x)
-        mylegend(legend, x=legend.x, lty=lty, title=legend.title, pch=pch, col=col)
+        mylegend(legend, x=legend.x, lty=lty, title=legend.title, pch=pch, col=col, pt.bg=bg)
     }
 }
 
@@ -2700,6 +2700,26 @@ remove.prefix=function(s,sep="_"){
     })
 }
 
+# make table that shows both counts/frequency and proportions
+table.prop=function (x,y) {
+    tbl=table(x,y)
+    prop = apply (tbl, 2, prop.table)
+    paste(tbl, round(prop*100), sep="")    
+    matrix(tbl %+% " (" %+% round(prop*100) %+% ")", nrow=2)    
+}
+
+
+# from Thomas, found on R user group
+methods4<-function(classes, super=FALSE, ANY=FALSE){ 
+    if (super) classes<-unlist(sapply(classes, function(cl) getAllSuperClasses(getClass(cl)))) 
+    if (ANY) classes<-c(classes,"ANY") 
+    gens<-getGenerics()@.Data 
+    sigs<-lapply(gens, function(g) linearizeMlist(getMethods(g))@classes) 
+    names(sigs)<-gens@.Data 
+    sigs<-lapply(sigs, function(gen){ gen[unlist(sapply(gen, function(sig) any(sig %in% classes)))]}) 
+    sigs[sapply(sigs,length)>0] 
+} 
+ 
 
 # this function contains "\""), which makes all the following line be miss-interpreted as being in quotes
 myprint.default = function (..., newline=T, digits=3) {     

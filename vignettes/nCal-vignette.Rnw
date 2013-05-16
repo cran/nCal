@@ -1,0 +1,186 @@
+%\VignetteIndexEntry{nCal: Nonlinear Calibration}
+%\VignetteDepends{}
+%\VignetteKeyWords{}
+%\VignettePackage{nCal}
+%\VignetteEngine{knitr}
+
+\documentclass{article}%
+\usepackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{natbib}%
+\setcounter{MaxMatrixCols}{30}
+%TCIDATA{OutputFilter=latex2.dll}
+%TCIDATA{Version=5.50.0.2960}
+%TCIDATA{LastRevised=Sunday, June 02, 2013 14:49:03}
+%TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
+%TCIDATA{<META NAME="SaveForMode" CONTENT="1">}
+%TCIDATA{BibliographyScheme=BibTeX}
+%TCIDATA{Language=American English}
+%BeginMSIPreambleData
+\providecommand{\U}[1]{\protect\rule{.1in}{.1in}}
+%EndMSIPreambleData
+\setcounter{secnumdepth}{3}
+
+\begin{document}
+
+\title{nCal - Some Examples}
+\author{Youyi Fong\\Fred Hutchinson Cancer Research Center}
+\maketitle
+
+<<setup, include=FALSE, cache=FALSE>>=
+# set global chunk options
+library(knitr)
+opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold',dev='pdf',
+warning=FALSE,dev.args=list(family="Palatino"), tidy.opts=list(keep.blank.line=FALSE, width.cutoff=60))
+options(replace.assign=TRUE,width=90)
+#render_listings()
+@
+
+
+
+\section{A basic example}
+
+The function \textit{ncal} carries out nonlinear calibration, which entails fitting concentration-response curves to sets of samples of known concentrations, also known as standard samples, and using the fitted curves to obtain point estimates and confidence intervals for the analyte concentrations in the samples of interest, also known as the unknown samples. Take Luminex \citep{defawe2012optimization} as an example. The assay is conducted on 96-well or 384-well plates. Each plate usually has a set of wells containing standard samples and a set of wells containing unknown samples. Within each well, multiple analytes can be assayed simultaneously. In the following, we will use \textit{plate} and \textit{assay} exchangeably. 
+
+
+\textit{ncal} has 2 required arguments, \textit{formula} and \textit{data}, and 24 optional arguments. \textit{data} is a data frame object, where each row is a sample, either standard or unknown. The \textit{formula} object specifies the names of the response and concentration columns. Besides these two columns, \textit{data} is also expected to have two columns that help identify standard curves: \textit{analyte} and \textit{assay\_id}. If \textit{data} contains both standard and unknown samples, two more columns are also required: \textit{well\_role} and \textit{sample\_id}. \textit{data} may also have additional columns. For example, it is sometimes convenient to include dilution factor for unknown samples. We now simulate a dataset with one assay, one analyte and four unknown samples with varying dilutions.
+
+
+<<loadnCal, include=FALSE, cache=FALSE, tidy=TRUE, echo=TRUE>>=
+library(nCal)
+@
+
+
+<<Example1data, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE>>=
+set.seed(1)
+log.conc=log(1e4)-log(3)*9:0
+n.replicate=2
+fi=simulate1curve (p.eotaxin[1,], rep(log.conc,each=n.replicate), sd.e=0.2)
+dat.std=data.frame(fi, expected_conc=exp(rep(log.conc,each=n.replicate)), 
+    analyte="Test", assay_id="Run 1", sample_id=NA, well_role="Standard", 
+    dilution=rep(3**(9:0), each=n.replicate))
+# add unknown
+dat.unk=rbind(
+data.frame(fi=exp(6.75), expected_conc=NA, analyte="Test", assay_id="Run 1", sample_id=1, well_role="Unknown", dilution=1)
+, data.frame(fi=exp(6.70), expected_conc=NA, analyte="Test", assay_id="Run 1", sample_id=2, well_role="Unknown", dilution=1)
+, data.frame(fi=exp(3), expected_conc=NA, analyte="Test", assay_id="Run 1", sample_id=3, well_role="Unknown", dilution=1)
+, data.frame(fi=exp(4.4), expected_conc=NA, analyte="Test", assay_id="Run 1", sample_id=4, well_role="Unknown", dilution=10)
+)
+dat=rbind(dat.std, dat.unk)
+@
+
+
+
+\textit{ncal} provides access to two curve-fitting engines, \textit{drm} and \textit{bcrm}. To use \textit{drm} to fit curves separately for each assay, simply call \textit{ncal} with mostly default parameters. 
+
+<<Example1drm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, drm fit.">>=
+res.drm = ncal(log(fi)~expected_conc, dat, return.fits = TRUE)
+@
+
+\textit{ncal} returns a data frame, each row of which corresponds to one unknown sample. 
+<<Example1drmres, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, drm fit.">>=
+res.drm 
+@
+
+The curve fit object is not returned by default, but can be returned as an attribute of the return data frame when return.fits is set to TRUE. 
+<<Example1resultsfit, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE>>=
+fit.drm=attr(res.drm, "fits")[[1]]
+@
+
+\textit{ncal} also creates a four-panel plot (Figure~\ref{fig:Example1drm}) for each assay by default. The upper left panel shows the standard samples data and the fitted curve. The upper right panel is similar to the upper left panel, but adds a set of points representing the samples of interest. The lower left panel shows the estimated variance of the estimated concentrations as functions of the estimated concentration \citep[][]{fong2013nonlinear}. The lower right panel shows the coefficient of variation (CV) as a function of the estimated concentration. The limits of quantification (LOQ) are defined as the estimated concentrations at which the percent CV equals 20.
+
+
+To use \textit{bcrm} to fit a robust Bayesian hierarchical model \citep[][]{fong2013nonlinear}, simply pass \textit{bcrm.fit=TRUE} to \textit{ncal}. (Proper installation of JAGS and the R package rjags are required.)
+
+<<Example1bcrm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, bcrm fit.">>=
+res.bcrm = ncal(log(fi)~expected_conc, dat, bcrm.fit=T, return.fits = TRUE, bcrm.model="norm", control.jags=list(n.iter=5e3))
+fit.bcrm=attr(res.bcrm, "fits")
+@
+
+The behavior of \textit{ncal} is the same as when \textit{drm} is used as the curve-fitting engine. For this example, the two curve fitting methods produce similar results. This can seen by comparing the two graphical outputs in Figure~\ref{fig:Example1drm} and Figure~\ref{fig:Example1bcrm}, or by comparing the estimate concentrations and the associated uncertainty of the unknown samples,
+<<Example1bcrmres, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE>>=
+res.bcrm
+@
+
+\noindent or by comparing the estimated parameters of the five-parameter logistic curves and the associated uncertainty.
+<<Example1results, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE>>=
+rbind(cla2gh(coef(fit.drm)), coef(fit.bcrm))
+rbind(sqrt(diag(vcov(fit.drm))), sqrt(diag(vcov(fit.bcrm, type="classical"))))
+@
+
+Given a fitted curve, the analyte concentrations of new unknown samples can be estimated via \textit{getConc} by passing it the fit object and the observed responses.
+<<newunknown, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE>>=
+getConc(fit.bcrm, c(5.7,6.3))
+@
+
+\bigskip
+\section{Borrowing information across multiple assays}
+
+In a real application, multiple plates often need to be run in a stretch of days or weeks because all unknown samples can not fit in a single assay. In some cases, it is worth borrowing information across standard curves for the same analyte. We now use a real dataset to illustrate this. The dataset, hier.model.ex.2, is part of the \textit{ncal} package. In \citet[][]{fong2013nonlinear}, the first four assays are used as illustration due to space limit. To be consistent, we use four assays here as well. We first fit a Bayesian robust random effects model \citep[][]{fong2012robust} for the four assays. We choose the \textit{error.model} to be \textit{gh\_t4}, which means the g-h parameterization is used \citep[][]{richards1959flexible,fong2012robust} and the Student's t distribution with 4 degrees of freedom is assumed as the error distribution. Ideally we would like to collect $10^{5}$ posterior samples, but to reduce the time it takes to compile this vignette, we only run $10^{4}$ iterations. The printed message about residuals hints at an outliers problem.
+
+<<Example2bcrm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE>>=
+
+dat=subset(hier.model.ex.2, assay_id %in% paste("Run",1:4))
+fit.bcrm=bcrm(log(fi)~expected_conc, dat, error.model="gh_t4", informative.prior=T, n.iter=1e4)
+@
+
+We will extract the curve fit for each assay from \textit{fit.bcrm} using \textit{get.single.fit} and plot it together with the robust \textit{drm} fit. In addition, we will plot curves fitted using one of the popular commercial softwares, Graphpad Prism, with robust option.
+
+<<Example2, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="Comparing bcrm fit with drm and Prism fits.">>=
+
+# parameters from Prism fits
+prism.1 = c("c"=1.596,"d"=10.28,"f"=0.7202,"b"=-0.8815,"e"=10^((1.597+1/0.8815*log10(2**(1/0.7202)-1))) )
+prism.2 = c("c"=1.350,"d"=11.32,"f"=8.640e+010,"b"=-0.3452,"e"=10^((1.485+1/0.3452*log10(2**(1/8.640e+010)-1))) )
+prism.3 = c("c"=1.333,"d"=10.23,"f"=0.7366,"b"=-0.8502,"e"=10^((1.526+1/0.8502*log10(2**(1/0.7366)-1))) )
+prism.4 = c("c"=1.580,"d"=10.37,"f"=1.694,"b"=-0.6639,"e"=10^((1.530+1/0.6639*log10(2**(1/1.694)-1))) )
+prism=rbind(prism.1,prism.2,prism.3,prism.4)
+# start plotting
+par(mfrow=c(2,2))
+for (i in 1:4) {
+    p=paste("Run", i)
+    # fit drm model
+    fit.drm = drm(log(fi)~expected_conc, data=dat, subset=assay_id==p, fct=LL.5(), robust="median")
+    plot(fit.drm, type="all", col="black", main=p, lty=2)
+    plot(get.single.fit(fit.bcrm, p), add=T, log="x", col=1)
+    # plot Prism fit
+    xx=exp(seq(log(0.51),log(1e4),length=100))
+    lines(xx, FivePL.x(xx,prism[i,]), type="l", lty=1, col="darkgray")
+    legend(x="bottomright",legend=c("Prism, robust","drm, median","bcrm, t4"),lty=c(1,2,1),col=c("darkgray",1,1),bty="n")
+}
+
+@
+
+Figure~\ref{fig:Example2} shows that in Run 2, which has multiple outliers, \textit{bcrm} produces a different fit from \textit{drm} and Prism. This suggests by borrowing information judiciously we can overcome the challenging issue of masking in the outliers problem.
+
+
+
+\bigskip
+\section{Robust Bayesian hierarchical model priors}
+
+The priors of the robust Bayesian hierarchical model used in \textit{bcrm} are specified as follows. Denote $\boldsymbol{\theta=}\left\{
+c,d,g,\log\left(  h\right)  ,\log\left(  f\right)  \right\}  $ \citep[g-h parameterization][]{richards1959flexible,fong2012robust}. Let
+$\boldsymbol{\bar{\theta}}$ be the average of the least square fit 5PL
+parameters across assay runs. 
+\begin{align*}
+\boldsymbol{\theta}_{0}  &  \sim N\left(  \boldsymbol{\bar{\theta}},\text{
+precision=}diag\left(  0.40,6.09,1.75,16.96,1.08\right)  \right) \\
+\Omega &  \sim Wishart_{5}\left(  r=8,S=diag\left(
+1.83,9.37,23,172,2.01\right)  \right)
+\end{align*}
+For $\varepsilon_{ik}\sim t_{4}\left(  0,\sigma^{2}\right)  $, we assume prior
+$\sigma^{-2}\sim Gamma\left(  \text{shape=}2,\text{rate=}0.02\right)  $. For
+$\varepsilon_{ik}\sim N\left(  0,\sigma^{2}\right)  $, we assume prior
+$\sigma^{-2}\sim Gamma\left(  \text{shape=}2,\text{rate=}0.06\right)  $.
+
+
+
+\bibliographystyle{apalike}
+\bibliography{nCal-vignette}
+
+
+
+\end{document}

@@ -15,19 +15,20 @@
 \method{ncal}{formula} (formula, data, 
     bcrm.fit=FALSE, bcrm.model="t4", robust="mean", 
     weighting=FALSE, pow.weight=1,
-    auto.detect.incr=TRUE, incr=NULL, 
     force.fit=TRUE, fit.4pl=FALSE, return.fits=FALSE, 
     plot=TRUE, auto.layout=TRUE, plot.se.profile=TRUE, plot.log="x", 
     test.LOD=FALSE, find.LOD=FALSE, find.LOQ=FALSE, grid.len=50, lod.ci=95,
     unk.replicate=NULL, find.best.dilution=FALSE, verbose=FALSE,     
-    control.jags=list(n.iter=1e5, jags.seed=1, n.thin=NULL, keep.jags.samples=FALSE),
+    control.jags=list(n.iter=1e5, jags.seed=1, n.thin=NULL, 
+        keep.jags.samples=FALSE, n.adapt=1e3),
+    cex=.5,
 ...)
 
 \method{ncal}{character} (file, is.luminex.xls, formula, bcrm.fit, ...)
 
 rumi(data, ...)
 
-ncalGUI (toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt"))
+ncalGUI (verbose=FALSE)
 
 }
 
@@ -55,17 +56,15 @@ ncalGUI (toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt"))
   \item{fit.4pl}{ a Boolean, default FALSE }
   \item{weighting}{ a Boolean. Determines whether to fit weighted least square using drm.}
   \item{pow.weight}{ numeric. Power of the weight variance function, e.g. -1, -2. }
-  \item{auto.detect.incr}{ a Boolean, default NULL. This indicates whether we will auto detect a curve to be increasing or decreasing. }
-  \item{incr}{ a Boolean, default TRUE. This indicates whether we expect the curve to be increasing or decreasing. If TRUE, auto.detect.incr will be set to FALSE. }
   \item{lod.ci}{ an integer, default 95. If default, one sided 50 percent CI is used to determine LODi. }
   \item{plot.log}{ a string, default "x". Used to populate the log argument of the plot function.}
   \item{control.jags}{list. Parameters controlling the behavior of posterior sampling by JAGS.}
   \item{is.luminex.xls}{Boolean. Indicates whether the file is in the Luminex Excel file format outputted by the Bio-Plex software.}
+  \item{cex}{numeric. Passed to plot functions.}
 
   \item{file}{string. Name of the data file.}
   
-  \item{toolkit}{toolkit}
-
+  
   \item{...}{ passed to the function plotting fitted curves }
 
 }
@@ -157,7 +156,8 @@ Fong, Y., Yu, X., Sebestyen, K., Gilbert, P. and Self, S. (2013) nCal: a R packa
 
 \examples{
 
-#############################################################
+#begin=Sys.time()
+
 # basic example
 
 # simulate a dataset
@@ -186,36 +186,45 @@ dat=rbind(dat.std, dat.unk)
 out = ncal(log(fi)~expected_conc, dat, return.fits = TRUE, plot.se.profile=TRUE) 
 fit=attr(out, "fits")[[1]]
 
-# does jags fit with t4. note that n.iter is set to 100 here so that it does not run for too long
-# typically it needs to run longer to get a good approximation of the posterior
-out.t4 = ncal(log(fi)~expected_conc, dat, bcrm.fit=TRUE, return.fits = TRUE, plot.se.profile=TRUE,
-    control.jags=list(n.iter=1e2))
-fit.t4=attr(out.t4, "fits")
-
-
-\dontrun{
-# this block of code takes a few minutes to run
-
-# does jags fit with t4 and collect 1e5 posterior samples
-out.t4 = ncal(log(fi)~expected_conc, dat, bcrm.fit=TRUE, return.fits = TRUE, plot.se.profile=TRUE,
-    control.jags=list(n.iter=1e5))
-fit.t4=attr(out.t4, "fits")
+# does jags fit and collect 1e5 posterior samples, it may be better to set n.iter higher
+out.norm = ncal(log(fi)~expected_conc, dat, bcrm.fit=TRUE, bcrm.model="norm",
+    return.fits = TRUE, plot.se.profile=TRUE,
+    control.jags=list(n.iter=1e5), n.iter=1e4, verbose=FALSE)
+fit.norm=attr(out.norm, "fits")
 
 # compare drm fit with bcrm fit
-rbind(out, out.t4)
-rbind(cla2gh(coef(fit)), coef(fit.t4))
-rbind(sqrt(diag(vcov(fit))), sqrt(diag(vcov(fit.t4, type="classical"))) )
+rbind(out, out.norm)
+rbind(cla2gh(coef(fit)), coef(fit.norm))
+rbind(sqrt(diag(vcov(fit))), sqrt(diag(vcov(fit.norm, type="classical"))) )
+sd.est = c(summary(fit)$rseMat[1], getVarComponent.bcrm(fit.norm)^.5)
+sd.est
 
-# import data from the raw Luminex output file
-out = ncal (paste(system.file(package="nCal")[1],'/misc/02-14A22-IgA-Biotin.xls',sep=""), 
-    is.luminex.xls=TRUE, formula=log(fi)~expected_conc, bcrm.fit=FALSE)
 
-}
+# testing
+library(RUnit)
+checkEqualsNumeric(
+    unlist(out[1,c("est.log.conc","se")])
+    , c(3.940014, 0.1622546), tolerance=1e-6)
+checkEqualsNumeric(
+    sd.est[1]
+    , c(0.1882199), tolerance=1e-6)
+
+
+# do ncal with imported data from a raw Luminex output file
+# the importing step can step a litte time
+out = ncal (paste(system.file(package="nCal")[1],'/misc/02-14A22-IgA-Biotin-tiny.xls',sep=""), 
+    is.luminex.xls=TRUE, formula=log(fi)~expected_conc, bcrm.fit=FALSE, return.fits=TRUE)
+fit=attr(out, "fits")[[1]]
+getConc(fit, c(5,6))
+
 
 # weighting
 out.w = ncal(fi~expected_conc, dat, return.fits = TRUE, plot.se.profile=TRUE, 
     weighting=TRUE, pow.weight=-1)
 fit.w=attr(out.w, "fits")[[1]]
+
+
+#end=Sys.time();print(end-begin)
 
 
 }
