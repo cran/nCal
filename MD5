@@ -1,5 +1,5 @@
 87d1f9b5d2c387e2c43af301f6367084 *ChangeLog
-1bd12bee235246ee11b736ec46606b8b *DESCRIPTION
+3c80a0c5af89522668d2ee07c41c9153 *DESCRIPTION
 b7df5e5525d177deb979599f516029fe *NAMESPACE
 358e8bd8afbc6d8b1344d85ddac7137f *R/5pl.R
 35de007efdc65844f78f5cc127bd25da *R/5pl_parameterization_calculus.R
@@ -15,7 +15,7 @@ da1b4e004a40024c93a52077cda69f8e *data/hierarchical_modeling_example_2.rda
 96a374a28af838a4db9f7215fca3909b *data/p.eotaxin.rda
 cad0602d9d85b809599ac290a2b6644c *inst/doc/nCal-vignette.R
 e1154c4cf597507683a53a14909c222d *inst/doc/nCal-vignette.Rnw
-92f768642078efa61c2594b1a0e8000c *inst/doc/nCal-vignette.pdf
+5882709b6949ba2cacfe02033660e008 *inst/doc/nCal-vignette.pdf
 a68efef3fcbcd22c16b9be26c4fb72c7 *inst/jags_script/model_classical_lar1.txt
 3e6258b723e855bc86f23728dd8c2ab1 *inst/jags_script/model_classical_mixnorm.txt
 3cfa043e0003fa60f736437298d52c0d *inst/jags_script/model_classical_norm.txt
@@ -51,10 +51,10 @@ d54ab3b2426a84df908f7785b7d9a9e8 *man/p.eotaxin.Rd
 59d0c2b8870d0cd8e44d16717a5b8efd *man/plot.bcrm.Rd
 aa133a0055b91ed8d7f2f434f58c6fff *man/plot5PL.Rd
 2fdeb1f692f1cc3905c5a24cc99446bb *man/read.luminex.xls.Rd
-a472dae90e35469d44682d40a28641e2 *tests/doRUnit.R
+086fa5f4e44bb241c60761c6bd4303db *tests/doRUnit.R
 d8c2daa4e93f65228d7f79baefb3fc2e *vignettes/figure/desktop.ini
-494d9a83454d5298b119e11fe11d5c6a *vignettes/figure/minimal-Example1bcrm.pdf
-9b414bf8d3653f1a19efa28952471d47 *vignettes/figure/minimal-Example1drm.pdf
-aff2398d6f58ff4234816c8b7fcc818b *vignettes/figure/minimal-Example2.pdf
+679ef1f67d38ce667e0a21650bbb2900 *vignettes/figure/minimal-Example1bcrm.pdf
+7713cff2126a7d722442adad25ea2fa4 *vignettes/figure/minimal-Example1drm.pdf
+7305c4db0c1b5ec3e0f746ca357943d5 *vignettes/figure/minimal-Example2.pdf
 e1154c4cf597507683a53a14909c222d *vignettes/nCal-vignette.Rnw
 82ad7d6b2c84f835d1719933669ea7b4 *vignettes/nCal-vignette.bib
