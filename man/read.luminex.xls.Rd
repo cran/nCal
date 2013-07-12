@@ -47,8 +47,8 @@ out = ncal(log(fi)~expected_conc, dat, return.fits = TRUE, plot.se.profile=FALSE
 out
 
 library(RUnit)
-checkEqualsNumeric(unlist(out[1,c("est.log.conc","se")]), c(-7.3449112, 0.79966084), tolerance=1e-6)
-checkEqualsNumeric(unlist(out[12,c("est.log.conc","se")]), c(3.6101613, 0.10138050), tolerance=1e-6)
+checkEqualsNumeric(unlist(out[1:3,c("fi")]), c(15,45,19.33908), tolerance=1e-6)
+checkEqualsNumeric(unlist(out[12,c("fi")]), c(183.73622), tolerance=1e-6)
 
 #end=Sys.time();print(end-begin)
 

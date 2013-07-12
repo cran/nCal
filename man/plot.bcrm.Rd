@@ -16,72 +16,52 @@ Plot function for the bcrm object
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
-%%     ~~Describe \code{x} here~~
+a bcrm object.
 }
   \item{assay_id}{
-%%     ~~Describe \code{assay_id} here~~
-}
+a string. Assay identifier.}
   \item{add}{
-%%     ~~Describe \code{add} here~~
-}
+Boolean. If TRUE, adding to an existing plot.}
   \item{lcol}{
-%%     ~~Describe \code{lcol} here~~
-}
+integer. Line color.}
   \item{main}{
-%%     ~~Describe \code{main} here~~
-}
+string. Plot title.}
   \item{fit.2}{
-%%     ~~Describe \code{fit.2} here~~
-}
+a bcrm object. A second fit object to be plotted together with x.}
   \item{lwd}{
-%%     ~~Describe \code{lwd} here~~
-}
+numeric. Line width.}
   \item{points.only}{
-%%     ~~Describe \code{points.only} here~~
+Boolean. If TRUE, only the data points are plotted and not the fitted curves
 }
   \item{all.lines.only}{
-%%     ~~Describe \code{all.lines.only} here~~
+Boolean. If TRUE, only the fitted curves are plotted.
 }
   \item{t}{
-%%     ~~Describe \code{t} here~~
-}
+a numeric vector. The log concentrations.}
   \item{ylim}{
-%%     ~~Describe \code{ylim} here~~
-}
+a numeric vector. The usual ylim of plot function.}
   \item{same.ylim}{
-%%     ~~Describe \code{same.ylim} here~~
-}
+Boolean. If TRUE, all fitted curves are plotted with the same ylim.}
   \item{lty3}{
-%%     ~~Describe \code{lty3} here~~
+integer. lty for plotting fit.3.
 }
   \item{fit.3}{
-%%     ~~Describe \code{fit.3} here~~
-}
+bcrm object. A third optional bcrm object to be plotted.}
   \item{lcol2}{
-%%     ~~Describe \code{lcol2} here~~
-}
+integer. Line color for plotting fit.2.}
   \item{lcol3}{
-%%     ~~Describe \code{lcol3} here~~
-}
+integer. Line color for plotting fit.3.}
   \item{xlab}{
-%%     ~~Describe \code{xlab} here~~
-}
+string. The usual xlab argument of plot function.}
   \item{ylab}{
-%%     ~~Describe \code{ylab} here~~
-}
+string. The usual ylab argument of plot function.}
   \item{col.outliers}{
-%%     ~~Describe \code{col.outliers} here~~
-}
+Boolean. If TRUE, outliers are colored differently.}
   \item{lty}{
-%%     ~~Describe \code{lty} here~~
-}
+integer. Line type for plotting x.}
   \item{cex}{
-%%     ~~Describe \code{cex} here~~
-}
+numeric. The usual cex argument of plot function.}
   \item{log}{
-%%     ~~Describe \code{log} here~~
-}
-  \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
-}
+string. If it is "x", then the x axis is labeled on the scale of concentration; otherwise, it is labeled on the scale of log concentration.}
+  \item{...}{ Not passed to other functions, but needed to keep some similarity with plot.drm. }
 }

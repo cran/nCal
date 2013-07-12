@@ -50,7 +50,7 @@ dat.std=cbind(dat.std, well_role="Standard")
 dat.unk=cbind(dat.unk, well_role="Unknown")
 dat=rbind(dat.std, dat.unk)
 
-out=ncal(log(fi)~expected_conc, dat, return.fits = TRUE)
+out=ncal(log(fi)~expected_conc, dat, return.fits = TRUE, additional.plot.func=function() abline(v=10))
 checkEqualsNumeric(unlist(out[1,c("est.log.conc","se")]), c(3.940014, 0.1622546), tolerance=1e-6)
 
 out.norm=ncal(log(fi)~expected_conc, dat, return.fits = TRUE, bcrm.fit=TRUE, bcrm.model="norm", control.jags=list(n.iter=10, n.adapt=0))
@@ -60,7 +60,16 @@ checkEqualsNumeric(
     , 
     c(3.9400136, 0.1253771)
 , tolerance=1e-6)
-    
+
+# weighting
+out.w = ncal(fi~expected_conc, dat, return.fits = TRUE, plot.se.profile=TRUE, weighting=TRUE, pow.weight=-1)
+fit.w=attr(out.w, "fits")[[1]]
+
+checkEqualsNumeric(
+    coef(fit.w)
+    , 
+    c(-1.213899,    76.742779, 31382.356851,   764.912405,     1.129558 )
+, tolerance=1e-6)
 
 
 

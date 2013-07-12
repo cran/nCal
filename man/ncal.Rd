@@ -21,10 +21,10 @@
     unk.replicate=NULL, find.best.dilution=FALSE, verbose=FALSE,     
     control.jags=list(n.iter=1e5, jags.seed=1, n.thin=NULL, 
         keep.jags.samples=FALSE, n.adapt=1e3),
-    cex=.5,
+    cex=.5, additional.plot.func=NULL,
 ...)
 
-\method{ncal}{character} (file, is.luminex.xls, formula, bcrm.fit, ...)
+\method{ncal}{character} (file, is.luminex.xls, formula, bcrm.fit, verbose=FALSE, ...)
 
 rumi(data, ...)
 
@@ -61,6 +61,7 @@ ncalGUI (verbose=FALSE)
   \item{control.jags}{list. Parameters controlling the behavior of posterior sampling by JAGS.}
   \item{is.luminex.xls}{Boolean. Indicates whether the file is in the Luminex Excel file format outputted by the Bio-Plex software.}
   \item{cex}{numeric. Passed to plot functions.}
+  \item{additional.plot.func}{function. Will be called after the first panel is drawn.}
 
   \item{file}{string. Name of the data file.}
   
@@ -133,8 +134,6 @@ ncalGUI (verbose=FALSE)
     
     
     
-To do list:
-multpile plates
 
 }
 
@@ -199,15 +198,6 @@ rbind(sqrt(diag(vcov(fit))), sqrt(diag(vcov(fit.norm, type="classical"))) )
 sd.est = c(summary(fit)$rseMat[1], getVarComponent.bcrm(fit.norm)^.5)
 sd.est
 
-
-# testing
-library(RUnit)
-checkEqualsNumeric(
-    unlist(out[1,c("est.log.conc","se")])
-    , c(3.940014, 0.1622546), tolerance=1e-6)
-checkEqualsNumeric(
-    sd.est[1]
-    , c(0.1882199), tolerance=1e-6)
 
 
 # do ncal with imported data from a raw Luminex output file

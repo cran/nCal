@@ -9,7 +9,7 @@ ncal.formula = function (formula, data,
     test.LOD=FALSE, find.LOD=FALSE, find.LOQ=FALSE, grid.len=50, lod.ci=95,
     unk.replicate=NULL, find.best.dilution=FALSE, verbose=FALSE,     
     control.jags=list(n.iter=1e5, jags.seed=1, n.thin=NULL, keep.jags.samples=FALSE, n.adapt=1e3), 
-    cex=.5,
+    cex=.5, additional.plot.func=NULL,
 ...)
 {
     
@@ -108,7 +108,7 @@ ncal.formula = function (formula, data,
             if (bcrm.fit) {
                 fit = get.single.fit(fits, assay_id=p) 
             } else {
-                fit = drm.fit(formula, data = dat.std, robust=robust, weighting=weighting, force.fit=force.fit, fit.4pl=fit.4pl, verbose=verbose, pow.weight=pow.weight)
+                fit = drm.fit(formula, data = dat.std, robust=robust, weighting=weighting, force.fit=force.fit, fit.4pl=fit.4pl, verbose=verbose, pow.weight=pow.weight, coln.weight=outcome.coln%+%".avg")
             }
             if (return.fits & !bcrm.fit) fits[[p%+%a]]=fit
             if (verbose) print("debug 100")
@@ -122,11 +122,13 @@ ncal.formula = function (formula, data,
     
                 if (plot) {
                     # this pch is not used by plot.drc, nonetheless, keep it here for now
-                    if (!is.null(dat.std$replicate)) pch=ifelse(dat.std$replicate==1, 1, 19) else pch=1
+                    if (!is.null(dat.std$replicate)) pch=c(1,19:15)[dat.std$replicate] else pch=rep(1,nrow(dat.std))
                     suppressWarnings(
-                        plot(fit, type="all", main=p%+%", "%+%a, cex=cex, xlim=exp(c(std.low, std.high)), pch=pch, log=plot.log, xlab=predictor.coln, 
+                        plot(fit, type="all", main=p%+%", "%+%a, cex=cex, log=plot.log, xlab=predictor.coln, pch=pch,
                             ylab=ifelse(log.transform,"log(","")%+%outcome.coln%+%ifelse(log.transform,")",""))
                     )
+                    
+                    if (!is.null(additional.plot.func)) additional.plot.func()
                 }
     
                 df.=nrow(dat.std)
@@ -289,7 +291,7 @@ ncal.formula = function (formula, data,
                     if (plot.se.profile) {
                         
                         # fitted curves, with predicted conc
-                        suppressWarnings( plot(fit, type="all", main=p%+%", "%+%a, cex=cex, xlim=exp(c(std.low,std.high)),pch=pch,log=plot.log,xlab=predictor.coln,
+                        suppressWarnings( plot(fit, type="all", main=p%+%", "%+%a, cex=cex, pch=pch,log=plot.log,xlab=predictor.coln,
                                                     ylab=ifelse(log.transform,"log(","")%+%outcome.coln%+%ifelse(log.transform,")",""), ...) )
                         #abline(v=c(exp(x.low), exp(x.high)), col=1)
                         abline(v=LOQ[nrow(LOQ),3:4], col="gray")
@@ -371,8 +373,9 @@ ncal.formula = function (formula, data,
     return (out)
 }
 
-ncal.character = function (file, is.luminex.xls, formula, bcrm.fit, ...) {
-    if (is.luminex.xls) dat=read.luminex.xls(file) else dat=read.csv(file, as.is=TRUE)
+ncal.character = function (file, is.luminex.xls, formula, bcrm.fit, verbose=FALSE, ...) {
+    if (is.luminex.xls) dat=read.luminex.xls(file, verbose) else dat=read.csv(file, as.is=TRUE)
+    #mywrite.csv(dat, file=file)
     ncal.formula(formula, dat, bcrm.fit=bcrm.fit, ...)
 }
 

@@ -10,19 +10,15 @@ An example for hierarchical modeling used in Fong, Wakefield, De Rosa, Frahm (20
 \format{
   A data frame with 120 observations on the following 13 variables.
   \describe{
-    \item{\code{well}}{a character vector}
-    \item{\code{assay_id}}{a character vector}
-    \item{\code{analyte}}{a character vector}
-    \item{\code{well_role}}{a character vector}
-    \item{\code{beadct}}{a numeric vector}
-    \item{\code{ptid}}{a numeric vector}
-    \item{\code{visit}}{a numeric vector}
-    \item{\code{thawdt}}{a character vector}
-    \item{\code{dilution}}{a numeric vector}
-    \item{\code{expected_conc}}{a numeric vector}
-    \item{\code{fi}}{a numeric vector}
-    \item{\code{sample_id}}{a logical vector}
-    \item{\code{replicate}}{a numeric vector}
+    \item{\code{well}}{a character vector. Well identifier on a microplate.}
+    \item{\code{assay_id}}{a character vector. Assay identifier.}
+    \item{\code{analyte}}{a character vector. Substance to be measured.}
+    \item{\code{well_role}}{a character vector. Defines the role of a well. See ?ncal for more information.}
+    \item{\code{beadct}}{a numeric vector. Number of beads in the well, specific to multiplex bead array assay.}
+    \item{\code{dilution}}{a numeric vector. The dilution factor of a sample.}
+    \item{\code{expected_conc}}{a numeric vector. The expected concentrations of a sample.}
+    \item{\code{fi}}{a numeric vector. Fluoresence intensity readout.}
+    \item{\code{replicate}}{a numeric vector. Techinical replicate identifier.}
   }
 }
 \references{

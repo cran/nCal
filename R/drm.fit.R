@@ -1,12 +1,8 @@
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("drm.weights"))
 
 
-# better ssfct to get better fits
-# Use gof.threshold to report lack of fit
-# this is only working for log transformed
-# this is not working for weighting for two reasons 1) if weights are present, fails 2) gof needs to be computed differently
 # robust="mean"; fit.4pl=FALSE; force.fit=F; weighting=F # default
-drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=FALSE, weighting=FALSE, pow.weight=1, verbose=FALSE) {
+drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=TRUE, weighting=FALSE, coln.weight=NULL, pow.weight=1, verbose=FALSE) {
     
     require(drc)
     
@@ -17,8 +13,8 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=FALSE, 
     control=drmc(maxIt=5000, method="BFGS", relTol=1e-7, trace=FALSE)
     
     if (weighting) {
-        outcome.coln=all.vars(formula)[1]
-        eval(eval(substitute(expression( drm.weights <<- data[,outcome.coln%+%".avg"]^pow.weight ))))     
+        if (is.null(coln.weight)) outcome.coln=all.vars(formula)[1] else outcome.coln=coln.weight
+        eval(eval(substitute(expression( drm.weights <<- data[,outcome.coln]^pow.weight ))))     
     } else {
         eval(eval(substitute(expression( drm.weights <<- rep(1,nrow(data)) ))))     
     }
@@ -91,7 +87,7 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=FALSE, 
                 } else gof3=Inf
                 gofs[3]=gof3
                 fits[[3]]=fit3
-                if (gof3>gof.threshold) print ("residuals larger than ususal in "%+%data[1,"assay_id"]%+%", "%+%data[1,"analyte"])
+                if (gof3>gof.threshold) print ("drm.fit: residuals larger than ususal in "%+%data[1,"assay_id"]%+%", "%+%data[1,"analyte"], quote=FALSE)
                 else {
                     
                 }
@@ -140,8 +136,6 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=FALSE, 
         else return (fit)
     }
 }
-#fit.drc(fi ~ expected_conc, data = dat)
-#fit.drc(MFI ~ Expected.Conc, data = tt, weights= tt$MFI.avgY^-1)
 
 
 # self start functions

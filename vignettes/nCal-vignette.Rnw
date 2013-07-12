@@ -141,11 +141,11 @@ prism=rbind(prism.1,prism.2,prism.3,prism.4)
 # start plotting
 par(mfrow=c(2,2))
 for (i in 1:4) {
-    p=paste("Run", i)
+    assay.id=paste("Run", i)
     # fit drm model
-    fit.drm = drm(log(fi)~expected_conc, data=dat, subset=assay_id==p, fct=LL.5(), robust="median")
-    plot(fit.drm, type="all", col="black", main=p, lty=2)
-    plot(get.single.fit(fit.bcrm, p), add=T, log="x", col=1)
+    fit.drm = drm.fit(log(fi)~expected_conc, data=dat[dat$assay_id==assay.id,], robust="median")
+    plot(fit.drm, type="all", col="black", main=assay.id, lty=2)
+    plot(get.single.fit(fit.bcrm, assay.id), add=T, log="x", col=1)
     # plot Prism fit
     xx=exp(seq(log(0.51),log(1e4),length=100))
     lines(xx, FivePL.x(xx,prism[i,]), type="l", lty=1, col="darkgray")

@@ -308,7 +308,7 @@ bcrm = function (formula, data, error.model, informative.prior,
     fit$high.coef=   matrix(apply(samples.2, 2, function(x) quantile(x,0.975)), nrow=n.curve, dimnames=list(assay_names, pname))
     fit$coefficients=fit$median.coef
     fit$coef.samples=samples.2
-
+    
 #    if (!is.null(params.true)) {
 #        for (k in 1:n.curve) {
 #            f0=FivePL.t.func(params.true[k,])

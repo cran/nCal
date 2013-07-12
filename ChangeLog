@@ -81,3 +81,14 @@
     * remove incr and auto.detect.incr and handle decreasing more smartly
 	* framed.sty needs to be present where kpsewhich.exe locates
 	* qpdf is downloaded and path added, ghostscrip
+
+2013-05-28  V_0.2-2 Youyi Fong
+	* making changes according to major revision comments
+	* add additional.plot.func to ncal list of params
+	* in ncal, when plotting drm fit, having xlim sometimes messes things up,
+	not sure why
+
+2013-05-28  V_0.3-1 Youyi Fong
+	* remove some checkEqualsNumeric from nCal.Rd since they fail on some
+	systems (drm optimization related)
+	* making changes according to minor revision comments
