@@ -7,6 +7,9 @@ if(FALSE) {
 
 test.5PL <- function() {
 
+tolerance=1e-5
+tol.=1 # the function integrate() is going through some changes. the functions that depend on integrate() has tolerance set to a large number for now
+
 RNGkind("Mersenne-Twister", "Inversion")
 #RNGkind("Marsaglia-Multicarry", "Kinderman-Ramage") 
 
@@ -37,29 +40,29 @@ fit.norm=attr(out.norm, "fits")
 #    , tolerance=1e-6)
 
 
-checkEqualsNumeric(get.curve.param.list(p.eotaxin[1,])$b, -0.9155976, tolerance=1e-6)
-checkEqualsNumeric(get.curve.param.list(p.eotaxin)$b[5:6], c(-0.7751437, -0.7762582), tolerance=1e-6)
+checkEqualsNumeric(get.curve.param.list(p.eotaxin[1,])$b, -0.9155976, tolerance=tolerance)
+checkEqualsNumeric(get.curve.param.list(p.eotaxin)$b[5:6], c(-0.7751437, -0.7762582), tolerance=tolerance)
 
 
 checkEqualsNumeric(
     FivePL.x.inv(c(1,11), p.eotaxin[1,])
-    , c(0, Inf), tolerance=1e-6)
+    , c(0, Inf), tolerance=tolerance)
     
 checkEqualsNumeric(
     FivePL.x.inv(8:9, p.eotaxin[1,])
-    , c(135.5713, 327.9885), tolerance=1e-6)
+    , c(135.5713, 327.9885), tolerance=tolerance)
     
 checkEqualsNumeric(
     FivePL.x.inv(8:9, p.eotaxin[2,])
-    , c(142.5312, 334.9337), tolerance=1e-6)
+    , c(142.5312, 334.9337), tolerance=tolerance)
     
 checkEqualsNumeric(
     FivePL.x.inv(8:9, p.eotaxin[1:2,])
-    , c(135.5713, 334.9337), tolerance=1e-6)
+    , c(135.5713, 334.9337), tolerance=tolerance)
     
 checkEqualsNumeric(
     FivePL.x.inv(8, p.eotaxin[1:2,])
-    , c(135.5713, 142.5312), tolerance=1e-6)
+    , c(135.5713, 142.5312), tolerance=tolerance)
 
 checkException(
     FivePL.x.inv(8:9, p.eotaxin[1:3,])
@@ -67,37 +70,37 @@ checkException(
 
 checkEqualsNumeric(
     FivePL.x.inv.func(p.eotaxin[1,])(8:9)
-    , c(135.5713, 327.9885), tolerance=1e-6)
+    , c(135.5713, 327.9885), tolerance=tolerance)
 
 checkEqualsNumeric(
     FivePL.x.inv.func(p.eotaxin[1:2,])(8:9)
-    , c(135.5713, 334.9337), tolerance=1e-6)
+    , c(135.5713, 334.9337), tolerance=tolerance)
 
 checkEqualsNumeric(
     FivePL.x.inv.func(p.eotaxin[1:2,])(c(1,11))
-    , c(0, Inf), tolerance=1e-6)
+    , c(0, Inf), tolerance=tolerance)
 
     
-checkEqualsNumeric(FivePL.t(5, p.eotaxin[1,]), 8.118479, tolerance=1e-6)
+checkEqualsNumeric(FivePL.t(5, p.eotaxin[1,]), 8.118479, tolerance=tolerance)
 
 p.decr = p.eotaxin[1,]
 p.decr["b"] = -p.decr["b"]
 
 checkEqualsNumeric(
     FivePL.t.inv(c(2,5,11), p.decr)
-    , c(Inf, 5.820098, -Inf), tolerance=1e-6)
+    , c(Inf, 5.820098, -Inf), tolerance=tolerance)
 
 checkEqualsNumeric(
     FivePL.t.inv(c(2,5,11), p.eotaxin[1,])
-    , c(-Inf, 2.33743, Inf), tolerance=1e-6)
+    , c(-Inf, 2.33743, Inf), tolerance=tolerance)
 
 checkEqualsNumeric(
     FivePL.t.inv.func(p.decr)(c(2,5,11))
-    , c(Inf, 5.820098, -Inf), tolerance=1e-6)
+    , c(Inf, 5.820098, -Inf), tolerance=tolerance)
 
 checkEqualsNumeric(
     FivePL.t.inv.func(p.eotaxin[1,])(c(2,5,11))
-    , c(-Inf, 2.33743, Inf), tolerance=1e-6)
+    , c(-Inf, 2.33743, Inf), tolerance=tolerance)
 
 
 p.4pl = p.eotaxin
@@ -111,7 +114,7 @@ checkEqualsNumeric(
       FourPL.x(c(1,1e1,1e2,1e3,1e4,1e5), p.4pl)
     , 
       FivePL.x(c(1,1e1,1e2,1e3,1e4,1e5), cbind(p.4pl,"f"=1))
-    , tolerance=1e-6)
+    , tolerance=tolerance)
 
 checkException(
     FivePL.x(8:9, p.eotaxin[1:3,])
@@ -121,14 +124,14 @@ checkEqualsNumeric(
     FourPL.x.inv(c(2,5,11), p.4pl[1,])
     , 
     FivePL.x.inv(c(2,5,11), c(p.4pl[1,],"f"=1))
-    , tolerance=1e-6)
+    , tolerance=tolerance)
 
 
 checkEqualsNumeric(
     FourPL.t.func(p.4pl)(log(c(1,1e1,1e2,1e3,1e4,1e5)))
     ,
     FourPL.x((c(1,1e1,1e2,1e3,1e4,1e5)), p.4pl)
-    , tolerance=1e-6)
+    , tolerance=tolerance)
 
 
 
@@ -136,37 +139,34 @@ checkEqualsNumeric(
     gh2cla(c("c"=1,"d"=10,"g"=4,"h"=4))
     ,
     c(-1.777778,  1, 10, 54.598150)
-    , tolerance=1e-6)
+    , tolerance=tolerance)
 
 checkEqualsNumeric(
     gh2cla(c("c"=1,"d"=10,"g"=4,"h"=4,"f"=1))
     ,
     c(-1.777778,  1, 10, 54.598150, 1)
-    , tolerance=1e-6)
+    , tolerance=tolerance)
 
 checkEqualsNumeric(
     cla2gh(c(b=-1.777778,  c=1, d=10, e=54.598150))
     ,
     c(1, 10, 4,  4.000001)
-    , tolerance=1e-6)
+    , tolerance=tolerance)
 
 checkEqualsNumeric(
     cla2gh(c(b=-1.777778,  c=1, d=10, e=54.598150, f=1))
     ,
     c(1, 10, 4,  4.000001, 1)
-    , tolerance=1e-6)
+    , tolerance=tolerance)
 
 
-checkEqualsNumeric(FivePL.t(5:6, p.eotaxin[1,]), c(8.118479, 9.178339), tolerance=1e-6)
+checkEqualsNumeric(FivePL.t(5:6, p.eotaxin[1,]), c(8.118479, 9.178339), tolerance=tolerance)
 
-checkEqualsNumeric(FivePL.t.func(p.eotaxin[1,])(5:6), c(8.118479, 9.178339), tolerance=1e-6)
+checkEqualsNumeric(FivePL.t.func(p.eotaxin[1,])(5:6), c(8.118479, 9.178339), tolerance=tolerance)
 
-checkEqualsNumeric(FivePL.x.inv(c(4,5,11), p.eotaxin[1,]), c(0,10.35459,Inf), tolerance=1e-5)
+checkEqualsNumeric(FivePL.x.inv(c(4,5,11), p.eotaxin[1,]), c(0,10.35459,Inf), tolerance=tolerance)
 
 
-
-# the following functions depend on integrate(), which is going through some changes. tol. is set to a large number for now
-tol.=1e0
 
 checkEqualsNumeric(
     get.abc(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))

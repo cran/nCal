@@ -302,7 +302,7 @@ bcrm = function (formula, data, error.model, informative.prior,
     #print(pname)
     fit$median.coef =matrix(apply(samples.2, 2, median),                        nrow=n.curve, dimnames=list(assay_names, pname)) # median is better than mean here for abc
     fit$mean.coef=matrix(apply(samples.2, 2, mean),                             nrow=n.curve, dimnames=list(assay_names, pname)) 
-    fit$mode.coef=matrix(apply(samples.2, 2, function(x) {den<-density(x); den$x[which(den$y==max(den$y))]}),                        nrow=n.curve, dimnames=list(assay_names, pname)) 
+    fit$mode.coef=matrix(apply(samples.2, 2, function(x) {den<-density(x); den$x[which(den$y==max(den$y))[1]]}), nrow=n.curve, dimnames=list(assay_names, pname)) 
     fit$sd.coef=     matrix(apply(samples.2, 2, sd),                            nrow=n.curve, dimnames=list(assay_names, pname))
     fit$low.coef=    matrix(apply(samples.2, 2, function(x) quantile(x,0.025)), nrow=n.curve, dimnames=list(assay_names, pname))
     fit$high.coef=   matrix(apply(samples.2, 2, function(x) quantile(x,0.975)), nrow=n.curve, dimnames=list(assay_names, pname))

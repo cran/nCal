@@ -1,6 +1,3 @@
-# the tests are not guarrantted to be successful on other platforms
-if (R.Version()$system %in% c("x86_64, mingw32", "x86_64, linux-gnu")) {
-    
 ## unit tests will not be done if RUnit is not available
 if(require("RUnit", quietly=TRUE)) {    
  
@@ -59,7 +56,4 @@ if(require("RUnit", quietly=TRUE)) {
   }
 } else {
   warning("cannot run unit tests -- package RUnit is not available")
-}
-
-
 }

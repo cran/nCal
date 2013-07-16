@@ -46,10 +46,6 @@ dat = read.luminex.xls(paste(system.file(package="nCal")[1],
 out = ncal(log(fi)~expected_conc, dat, return.fits = TRUE, plot.se.profile=FALSE)
 out
 
-library(RUnit)
-checkEqualsNumeric(unlist(out[1:3,c("fi")]), c(15,45,19.33908), tolerance=1e-3)
-checkEqualsNumeric(unlist(out[12,c("fi")]), c(183.73622), tolerance=1e-3)
-
 #end=Sys.time();print(end-begin)
 
 

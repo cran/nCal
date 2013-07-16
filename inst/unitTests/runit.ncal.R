@@ -7,6 +7,16 @@ if(FALSE) {
 
 test.ncal <- function() {
 
+tolerance=1e-5
+tolerance.jags=1e-3 # JAGS is not yet reproducible, see http://sourceforge.net/p/mcmc-jags/discussion/610037/thread/6c8c3e6a/
+tolerance.drm=1e-4 # drm::drc is not reproducibile across platforms at high tolerance
+
+# more stringent tolerance for one system to ensure algorithm accuracy
+if (R.Version()$system %in% c("x86_64, mingw32")) {
+    tolerance.jags=1e-6
+    tolerance.drm=1e-6
+}
+
 RNGkind("Mersenne-Twister", "Inversion")
 #RNGkind("Marsaglia-Multicarry", "Kinderman-Ramage") 
 
@@ -51,7 +61,10 @@ dat.unk=cbind(dat.unk, well_role="Unknown")
 dat=rbind(dat.std, dat.unk)
 
 out=ncal(log(fi)~expected_conc, dat, return.fits = TRUE, additional.plot.func=function() abline(v=10))
-checkEqualsNumeric(unlist(out[1,c("est.log.conc","se")]), c(3.940014, 0.1622546), tolerance=1e-6)
+
+checkEqualsNumeric(
+    unlist(out[1,c("est.log.conc","se")])
+    , c(3.940014, 0.1622546), tolerance=tolerance.drm)
 
 out.norm=ncal(log(fi)~expected_conc, dat, return.fits = TRUE, bcrm.fit=TRUE, bcrm.model="norm", control.jags=list(n.iter=10, n.adapt=0))
 
@@ -59,7 +72,7 @@ checkEqualsNumeric(
     unlist(out.norm[1,c("est.log.conc","se")])
     , 
     c(3.9400136, 0.1253771)
-, tolerance=1e-6)
+, tolerance=tolerance.jags)
 
 # weighting
 out.w = ncal(fi~expected_conc, dat, return.fits = TRUE, plot.se.profile=TRUE, weighting=TRUE, pow.weight=-1)
@@ -69,7 +82,7 @@ checkEqualsNumeric(
     coef(fit.w)
     , 
     c(-1.213899,    76.742779, 31382.356851,   764.912405,     1.129558 )
-, tolerance=1e-6)
+, tolerance=tolerance.drm)
 
 
 
@@ -87,7 +100,7 @@ checkEqualsNumeric(
     unlist(out.2[1:3,c("est.log.conc","se")])
     , 
     c(-3.939381, -9.9034876, 0.6771702, 0.162688, Inf, Inf)
-, tolerance=1e-6)
+, tolerance=tolerance.drm)
 
 
 out.2.norm=ncal(log(fi)~expected_conc, dat.2, return.fits = TRUE, bcrm.fit=TRUE, control.jags=list(n.iter=1e1, n.adapt=0), bcrm.model="norm", verbose=FALSE)
@@ -96,13 +109,13 @@ checkEqualsNumeric(
     coef(attr(out.2.norm, "fits"))
     ,
     c(4.386389, 10.511270, -4.145641, -1.322411,  2.547013)
-, tolerance=1e-6)
+, tolerance=tolerance.jags)
 
 checkEqualsNumeric(
     unlist(out.2.norm[1:3,c("est.log.conc","se")])
     , 
     c(-3.9400136,    -9.9034876,     0.6771702,     0.1253771, Inf, Inf)
-, tolerance=1e-6)
+, tolerance=tolerance.jags)
 
 
 # test 4PL
@@ -116,7 +129,7 @@ checkEqualsNumeric(
     unlist(out.4pl[1:3,c("est.log.conc","se")])
     , 
     c(3.9829620, 9.2103404, -1.3703174, 0.1629386, Inf, Inf)
-, tolerance=1e-6)
+, tolerance=tolerance.drm)
 
 
 out.4pl.norm=ncal(log(fi)~expected_conc, dat, return.fits = TRUE, fit.4pl=TRUE, bcrm.fit=TRUE, bcrm.model="norm", control.jags=list(n.iter=10, n.adapt=0))
@@ -125,7 +138,7 @@ checkEqualsNumeric(
     coef(attr(out.4pl.norm, "fits"))
     , 
     c(4.386389, 10.511270,  4.145641,  1.322411)
-, tolerance=1e-6)
+, tolerance=tolerance.jags)
 
 out.2.4pl.norm=ncal(log(fi)~expected_conc, dat.2, return.fits = TRUE, fit.4pl=TRUE, bcrm.fit=TRUE, bcrm.model="norm", control.jags=list(n.iter=10, n.adapt=0))
 
@@ -133,7 +146,7 @@ checkEqualsNumeric(
     coef(attr(out.2.4pl.norm, "fits"))
     , 
     c(4.386389, 10.511270, -4.145641, -1.322411)
-, tolerance=1e-6)
+, tolerance=tolerance.jags)
 
 
 out.2.4pl=ncal(log(fi)~expected_conc, dat.2, return.fits = TRUE, fit.4pl=TRUE)
@@ -142,7 +155,7 @@ checkEqualsNumeric(
     coef(attr(out.2.4pl, "fits")[[1]])
     , 
     c(0.86770147,  4.25401765, 10.38578190,  0.01207711)
-, tolerance=1e-6)
+, tolerance=tolerance.drm)
 
 
 out.4pl.t4=ncal(log(fi)~expected_conc, dat, return.fits = TRUE, fit.4pl=TRUE, bcrm.fit=TRUE, bcrm.model="t4", control.jags=list(n.iter=10, n.adapt=0))
@@ -151,8 +164,17 @@ checkEqualsNumeric(
     coef(attr(out.4pl.t4, "fits"))
     , 
     c(4.386389, 10.511270,  4.145641,  1.322411)
-, tolerance=1e-6)
+, tolerance=tolerance.jags)
 
+
+## test read.luminex.xls
+
+dat = read.luminex.xls(paste(system.file(package="nCal")[1],
+    '/misc/02-14A22-IgA-Biotin-tiny.xls', sep=""), verbose=TRUE)
+out = ncal(log(fi)~expected_conc, dat, return.fits = TRUE, plot.se.profile=FALSE)
+
+checkEqualsNumeric(unlist(out[1:3,c("fi")]), c(15,45,19.33908), tolerance=tolerance)
+checkEqualsNumeric(unlist(out[12,c("fi")]), c(183.73622), tolerance=tolerance)
 
 
 }

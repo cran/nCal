@@ -2434,6 +2434,7 @@ pr.1=function(x){
     out
 }
 
+# category.var is 
 myreshapewide=function(dat, category.var, outcome.var, idvar=NULL){
     if (is.null(idvar)) {
         idvar=setdiff(names(dat), c(category.var,outcome.var))

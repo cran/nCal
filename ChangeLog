@@ -102,3 +102,7 @@
 	checks depending on integrate() to a large number for now. See email from
 	Prof. Ripley on 7/16/13
 
+2013-05-28  V_0.3-4 Youyi Fong
+	* move unit testing code for read.luminex.xls to runit.ncal.R from
+	function help
+	* expand unit testing to all platforms with relaxed tolerance
