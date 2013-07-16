@@ -70,18 +70,9 @@ FivePL.t and other functions are vectorized for the x and the y arguments.
 \author{ Youyi Fong \email{yfong@fhcrc.org}, Xuesong Yu, William N. Cumberland }
 \examples{
 
-library(RUnit)
-
-
-
-
-
-checkEqualsNumeric(FivePL.t(5:6, p.eotaxin[1,]), c(8.118479, 9.178339), tolerance=1e-6)
-checkEqualsNumeric(FivePL.t.func(p.eotaxin[1,])(5:6), c(8.118479, 9.178339), tolerance=1e-6)
-
-
-checkEqualsNumeric(FivePL.x.inv(c(4,5,11), p.eotaxin[1,]), c(0,10.35459,Inf), tolerance=1e-5)
-
+FivePL.t(5:6, p.eotaxin[1,])
+FivePL.t.func(p.eotaxin[1,])
+FivePL.x.inv(c(4,5,11), p.eotaxin[1,])
 FivePL.t.inv.func(p.eotaxin[1,])
 
 

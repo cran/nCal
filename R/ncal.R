@@ -125,7 +125,7 @@ ncal.formula = function (formula, data,
                     if (!is.null(dat.std$replicate)) pch=c(1,19:15)[dat.std$replicate] else pch=rep(1,nrow(dat.std))
                     suppressWarnings(
                         plot(fit, type="all", main=p%+%", "%+%a, cex=cex, log=plot.log, xlab=predictor.coln, pch=pch,
-                            ylab=ifelse(log.transform,"log(","")%+%outcome.coln%+%ifelse(log.transform,")",""))
+                            ylab=ifelse(log.transform,"log(","")%+%outcome.coln%+%ifelse(log.transform,")",""), ...)
                     )
                     
                     if (!is.null(additional.plot.func)) additional.plot.func()

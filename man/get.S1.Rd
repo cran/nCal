@@ -40,40 +40,10 @@ a real number
 }
 \examples{
 
-library(RUnit)
-
-checkEqualsNumeric(
-    get.abc(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
-    , 
-    0.04151633
-    , tolerance=1e-7)
-
-
-checkEqualsNumeric(
-    get.S1(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
-    , 
-    0.002697115
-    , tolerance=1e-7)
-
-
-checkEqualsNumeric(
-    get.S2(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
-    , 
-    17.48958
-    , tolerance=1e-7)
-
-
-checkEqualsNumeric(
-    get.abs.dev(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)), y.range=c(5,6))
-    , 
-    0.07903227
-    , tolerance=1e-7)
-
-
-checkException(
-    get.abs.dev(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)), y.range=c(1,11))
-    )
-
+get.abc(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
+get.S1(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
+get.S2(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)))
+get.abs.dev(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)), y.range=c(5,6))
 
 
 }

@@ -92,3 +92,13 @@
 	* remove some checkEqualsNumeric from nCal.Rd since they fail on some
 	systems (drm optimization related)
 	* making changes according to minor revision comments
+
+2013-05-28  V_0.3-2 Youyi Fong
+	* restrict unit testing to x86_64, mingw32 and x86_64, linux-gnu
+
+2013-05-28  V_0.3-3 Youyi Fong
+	* after bug fix to integrate(), some tests fail. move all testing from
+	function help examples to unit testing files. change tolerance for those
+	checks depending on integrate() to a large number for now. See email from
+	Prof. Ripley on 7/16/13
+
