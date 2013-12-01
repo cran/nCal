@@ -1,5 +1,5 @@
 101b9aa8c2eacc5f33fcc88bf8754b67 *ChangeLog
-fe5c8c94442e2dfb716db9d2cf36688a *DESCRIPTION
+95b2f72b9802d507599a5e00d1709511 *DESCRIPTION
 e2ccd64da5b6962ad5803bccfd377854 *NAMESPACE
 5914182084b7d8104d753ae872a45bd1 *R/5pl.R
 a2b879db8e926b28f354b252ea298872 *R/5pl_parameterization_calculus.R
@@ -24,7 +24,7 @@ d8c2daa4e93f65228d7f79baefb3fc2e *inst/desktop.ini
 d8c2daa4e93f65228d7f79baefb3fc2e *inst/doc/desktop.ini
 ac72f686c9f5f50684b059f7069230fa *inst/doc/nCal-vignette.R
 b9bedffa8d29f3066739422947d15df9 *inst/doc/nCal-vignette.Rnw
-7da84e2dfc6835b6877c8ce5d200e37c *inst/doc/nCal-vignette.pdf
+ebb64ef247219fd09b753822ff6f57b8 *inst/doc/nCal-vignette.pdf
 a68efef3fcbcd22c16b9be26c4fb72c7 *inst/jags_script/classical_lar1.jags
 3e6258b723e855bc86f23728dd8c2ab1 *inst/jags_script/classical_mixnorm.jags
 3cfa043e0003fa60f736437298d52c0d *inst/jags_script/classical_norm.jags
@@ -52,7 +52,7 @@ d8c2daa4e93f65228d7f79baefb3fc2e *inst/unitTests/desktop.ini
 f5603c25cdff9c9cbc647efee4f2b2fd *inst/unitTests/report.txt
 515b18df7e17596dc38b9dbea407b26f *inst/unitTests/runRUnitTests.R
 03ccb88c60220efdaafd0575386b3b83 *inst/unitTests/runit.5PL.R
-18689b47a270df2c543610aeeeb303fa *inst/unitTests/runit.bcrm.R
+b8efdbd79d27d4a706e0f25050563306 *inst/unitTests/runit.bcrm.R
 1ea5d877f5b9ce5e16c25f779169b078 *inst/unitTests/runit.ncal.R
 3c977b7547be32814337d1f1ec3f7e40 *man/5PL.Rd
 a434b447d6ae55fc68a8e7c077281db6 *man/bcrm.Rd
@@ -71,8 +71,8 @@ dc711e1ec4bfd9f229ea3fc3ca2c6d75 *man/plot5PL.Rd
 d8c2daa4e93f65228d7f79baefb3fc2e *tests/desktop.ini
 74378a04c0291b1b34285a77a8a7f97b *tests/doRUnit.R
 d8c2daa4e93f65228d7f79baefb3fc2e *vignettes/figure/desktop.ini
-2955ba8c0cc22705b1adfe6302062fe9 *vignettes/figure/minimal-Example1bcrm.pdf
-9c5a93139a0af6dec5d6b158b6107838 *vignettes/figure/minimal-Example1drm.pdf
-4aa2a693d70c36e610f7818d31a27933 *vignettes/figure/minimal-Example2.pdf
+22a5ac0ec9c77e8fff118f8b4ed1f2fd *vignettes/figure/minimal-Example1bcrm.pdf
+94883dde29ea53d7b4eaca74b2d7a6d7 *vignettes/figure/minimal-Example1drm.pdf
+fcebd27149f4c4e7fd54e3737b782903 *vignettes/figure/minimal-Example2.pdf
 b9bedffa8d29f3066739422947d15df9 *vignettes/nCal-vignette.Rnw
 3e265b07d0a16dab781906731b7a2e36 *vignettes/nCal-vignette.bib
