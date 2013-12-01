@@ -11,7 +11,7 @@
 ## read all xls sheets
 read.luminex.xls<-function(file,verbose = FALSE,sheets = NULL, assay_id=NULL, na.strings = c("NA", "#DIV/0!"), ..., perl = "perl") 
 {
-    require(gdata)
+    #require(gdata)
     if(is.null(sheets)) sheets <- try(sheetNames(file,perl = perl))
     if(inherits(sheets,'try-error')) sheets <- 1
 

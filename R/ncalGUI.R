@@ -266,8 +266,8 @@ ncalGUI <- function(verbose = FALSE){
 # state of gui is kept by a separate window
 ncalGUI.2 <- function(toolkit = c("tcltk","RGtk2","rJava","RwxWidgets","Qt"),visible.state = FALSE){
     
-    require(gWidgets) || stop('Please install the gWidgets package')
-    require(nCal) || stop('Please install the nCal package')
+    #require(gWidgets) || stop('Please install the gWidgets package')
+    #require(nCal) || stop('Please install the nCal package')
 
     options(guiToolkit = toolkit[1])
     

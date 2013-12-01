@@ -121,6 +121,31 @@ ed502cla=function(param){
 
 
 
+ed50b2cla=function(param){
+    is.v=FALSE
+    if(is.vector(param)) {
+        is.v=TRUE
+#        tmp=substr(names(param),1,1)
+        tmp=names(param)
+        param=matrix(param, nrow=1)
+        colnames(param)=tmp
+    }
+    
+    if(ncol(param)==4) param=cbind(param, "f"=rep(1,nrow(param)))
+    
+    c=param[,"c"]; d=param[,"d"]; h=param[,"h"]; f=param[,"f"]; logtao=param[,"logtao"]
+    if(!"f" %in% colnames(param) & "logf"%in%colnames(param)) f=unname(exp(param[,"logf"])) else f=param[,"f"]    
+    if(!"h" %in% colnames(param) & "logh"%in%colnames(param)) h=unname(exp(param[,"logh"])) else h=param[,"h"]    
+    
+    b=-h/((d-c)/(1+(1/f))^(f+1))
+    loge=logtao-(1/b)*log(2^{1/f}-1)
+    e=exp(loge)
+    if(is.v) c(b=unname(b),c,d,e=unname(e),f) else cbind(b=unname(b),c,d,e=unname(e),f)
+}
+
+
+
+
 # x can be a single number or a vector
 # return a matrix, where each row corresponds to an x
 vpl1.deriv = function(x,param){

@@ -14,6 +14,7 @@
 \alias{gh2cla}
 \alias{cla2ed50}
 \alias{ed502cla}
+\alias{ed50b2cla}
 \alias{get.curve.param.list}
 \alias{simulate1curve}
 \alias{vpl1.deriv}
@@ -44,6 +45,7 @@ cla2gh (param)
 gh2cla (param)
 cla2ed50 (param)
 ed502cla (param)
+ed50b2cla (param)
 get.curve.param.list (param)
 simulate1curve (param, t, sd.e=0.1) 
 vpl1.deriv (x,param)
@@ -66,6 +68,8 @@ ED5PL (param, tao)
 }
 \details{
 FivePL.t and other functions are vectorized for the x and the y arguments.
+
+Four parameterizations are implemented. Classical: b,c,d,e,f; gh: c,d,f,g,h; ED50: c,d,f,b,tao(ED50); ED50b: c,d,f,h,tao(ED50)
 }
 \author{ Youyi Fong \email{yfong@fhcrc.org}, Xuesong Yu, William N. Cumberland }
 \examples{

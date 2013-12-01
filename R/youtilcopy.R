@@ -1,30 +1,37 @@
 # source ("http://sites.google.com/site/youyifong/misc/youtil.R")
 
-# author: Youyi Fong, mostly, if not specified otherwise
-#   some are modified base functions, usually with names such as mypostscript
-#   some are short convenience functions, naming convention is a mix of the R convention, first.last, and the Java convention, firstLast
-#   some are useful functions copied from others
-# copyright: GNU General Public License
-# no warranty whatsoever
-# bug reports, comments, suggestions: yfong@u.washington.edu 
+# author: Youyi Fong and Krisz Sebestyen, if not specified otherwise
+# some of Krisz's function calls C functions in fromKrisz.c
 
 # most useful functions:
-#   mypostscript
+#   mypostscript/mypdf
 #   mytex
 #   %+% # this operator add up two strings, e.g. "a" %+% "b"
 #   getFormattedSummary
 
-# most most dangerous functions (commented out):
-#   "[" is redefined so that the default behavior for drop is FALSE
-
-# all functions are grouped into the following categories 
-#   string functions
-#   matrix functions
-#   regression functions
-#   misc functions
+# easy to forget useful R functions
+#   expand.grid
 
 
-if (!require (xtable)) {warning("xtable is needed for outputting tables.")}
+#########################################################
+### NEW
+
+# make forest plot
+# dat should have three columns. first column should be point estimate, second and third lci and uci, fourth p value
+# col.1 is the color used for CIs that don't include null, col.2 is used for CIs that do include null
+my.forest.plot=function(dat, xlim=NULL, xlab="", main="", col.1="red", col.2="blue") { 
+    p=nrow(dat)    
+    # makes no plot, but helps set the x axis later
+    plot(c(dat[,2], dat[,3]),rep(1:p,2), xlim=xlim, yaxt="n", xaxt="s", xlab=xlab, ylab="", main="", type="n", cex.main=1.4, axes=F)
+    mtext(side=3, line=3, adj=0, text=main, cex=1.4, font=2, xpd=NA)
+    if (range(dat[,2:3])[1]>0) null.val=1 else null.val=0 # if all values are greater than 0, 1 is probably the null, otherwise, 0 is probably the null
+    abline(v=null.val, col="gray")
+    cols=ifelse(dat[,4]<0.05, col.1, col.2)
+    points(dat[,1], nrow(dat):1, pch=19, col=cols)
+    segments(dat[,2], nrow(dat):1, dat[,3], nrow(dat):1, lwd=2, col=cols)
+    axis(1, cex.axis=1.4)
+}
+
 
 
 #########################################################
@@ -42,7 +49,7 @@ if (!require (xtable)) {warning("xtable is needed for outputting tables.")}
 
 # many code in the packages expect the default behavior, thus it is dangerous to do this
 #"[" <- function (x, ...) {
-#    base::"["(x, ...,drop=F)
+#    base::"["(x, ...,drop=FALSE)
 #}
 
 firstIndex =function (s1, s2) {
@@ -72,9 +79,9 @@ lastIndex =function (s1, s2) {
 startsWith=function(s1, s2){
     sapply (s1, function (s) {
         if ( substring (s, 1, nchar(s2)) == s2 ) {
-            return (T);
+            return (TRUE);
         } else {
-            return (F);
+            return (FALSE);
         }
     })
 }
@@ -83,9 +90,9 @@ startsWith=function(s1, s2){
 endsWith=function(s1, s2){
     sapply (s1, function (s) {
         if ( substring (s, nchar(s)-nchar(s2)+1, nchar(s)) == s2 ) {
-            return (T);
+            return (TRUE);
         } else {
-            return (F);
+            return (FALSE);
         }
     })
 }
@@ -169,7 +176,7 @@ rep.matrix.block = function (.matrix, times=2) {
 
 
 #it does not work on data.frame
-rep.matrix = function (.matrix, times=1, each=1, by.row=T) {
+rep.matrix = function (.matrix, times=1, each=1, by.row=TRUE) {
     if (by.row) {
         colnames.=colnames(.matrix)
         new.matrix=matrix(0, nrow(.matrix)*each*times, ncol(.matrix) )
@@ -189,7 +196,7 @@ rep.matrix = function (.matrix, times=1, each=1, by.row=T) {
         new.matrix
     }
     else {
-        t ( rep.matrix(t(.matrix), times, each, by.row=T) )
+        t ( rep.matrix(t(.matrix), times, each, by.row=TRUE) )
     }    
 }
 
@@ -212,7 +219,7 @@ rep.data.frame = function (.data.frame, times=1){
 binom.coef=function(n,m) { prod((n-m+1):n)/prod(1:m) }
 
 sign.test = function (diff) {
-    binom.test( sum( diff > 0 , na.rm=T) , sum( diff != 0 , na.rm=T), p = 0.5,
+    binom.test( sum( diff > 0 , na.rm=TRUE) , sum( diff != 0 , na.rm=TRUE), p = 0.5,
            alternative = c("two.sided", "less", "greater"),
            conf.level = 0.95)   
 }
@@ -220,7 +227,7 @@ sign.test = function (diff) {
 # DONT CHANGE THIS, USED By RUMINEX!
 # if ret.mat is set to true, always return a matrix
 # in the output, each row corresponds to one element of X, instead of each column
-mysapply=function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE, ret.mat=T) 
+mysapply=function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE, ret.mat=TRUE) 
 {
     if (is.null(names(X)) & is.numeric(X)) names(X)=X%+%""
     FUN <- match.fun(FUN)
@@ -287,8 +294,8 @@ myaggregate = function (x, by, FUN, new.col.name="aggregate.value", ...)
     #original
     #y <- data.frame(w, lapply(y, unlist, use.names = FALSE))
     #modified
-    if(nrow(w)!=nrow(matrix(unlist(z), nrow=nrow(w), byrow=T))) stop("SOMETHING WRONG IN myaggregate")
-    y <- data.frame(w, matrix(unlist(z), nrow=nrow(w), byrow=T))
+    if(nrow(w)!=nrow(matrix(unlist(z), nrow=nrow(w), byrow=TRUE))) stop("SOMETHING WRONG IN myaggregate")
+    y <- data.frame(w, matrix(unlist(z), nrow=nrow(w), byrow=TRUE))
     #original
     #names(y) <- c(names(by), names(x))
     #modified
@@ -367,7 +374,7 @@ logit=function (x) {log(x/(1-x))}
 #    df
 #}
 #
-quick.t.test = function (x, y, var.equal=F) {
+quick.t.test = function (x, y, var.equal=FALSE) {
     mean.x = mean(x)
     mean.y = mean(y)
     m=length(x)
@@ -391,7 +398,7 @@ tukey.mtest = function (mu, ms, n) {
     #ms = 5
     #n=3
     m=length(mu)
-    cutoff = qtukey(p=.01, nmeans=m, df=(n-1)*(m-1), nranges = 1, lower.tail = F, log.p = FALSE)/sqrt(2)
+    cutoff = qtukey(p=.01, nmeans=m, df=(n-1)*(m-1), nranges = 1, lower.tail = FALSE, log.p = FALSE)/sqrt(2)
     
     t=matrix(0, m,m)
     for (i in 1:m) {
@@ -453,7 +460,7 @@ as.binary <- function(n, base=2 , r=FALSE)
 # e.g. mytex(matrix(0,2,2));
 # e.g. mytex(matrix(0,2,2), digits=4);
 # e.g. mytex(list(matrix(0,2,2), c(1,1))); 
-# default arguments: file.name="temp"; digits=NULL; display=NULL; align="r"; append=F; preamble=""; keep.row.names=TRUE
+# default arguments: file.name="temp"; digits=NULL; display=NULL; align="r"; append=FALSE; preamble=""; keep.row.names=TRUE
 mytex.begin=function(file.name,preamble=""){
 #    if(exists("tablePath") && file.exists(tablePath)) {
 #        file.name=tablePath%+%"/"%+%file.name
@@ -461,9 +468,10 @@ mytex.begin=function(file.name,preamble=""){
 #        file.name=file.name
 #    }    
     if (!endsWith(file.name,".tex")) file.name=file.name%+%".tex"
-    cat ("\\documentclass{article}\n", file=file.name, append=F)
-    cat (preamble, file=file.name, append=T)
-    cat("\n\\begin{document}\n", file=file.name, append=T)    
+    cat ("\\documentclass{article}\n", file=file.name, append=FALSE)
+    cat (preamble, file=file.name, append=TRUE)
+    cat("\n\\usepackage{geometry}\n", file=file.name, append=TRUE)    
+    cat("\n\\begin{document}\n", file=file.name, append=TRUE)    
 }
 mytex.end=function(file.name){
 #    if(exists("tablePath") && file.exists(tablePath)) {
@@ -472,15 +480,20 @@ mytex.end=function(file.name){
 #        file.name=file.name
 #    }    
     if (!endsWith(file.name,".tex")) file.name=file.name%+%".tex"
-    cat ("\n\\end{document}", file=file.name, append=T)
+    cat ("\n\\end{document}", file=file.name, append=TRUE)
 }
-mytex=function(dat=NULL, file.name="temp", digits=NULL, display=NULL, align="r", append=F, preamble="", keep.row.names=TRUE, floating=F, ...) {
+mytex=function(dat=NULL, file.name="temp", digits=NULL, display=NULL, align="r", append=FALSE, preamble="", include.rownames=TRUE, include.dup.rownames=FALSE, 
+    floating=FALSE, lines=TRUE, ...) {
     
 #    if(exists("tablePath") && file.exists(tablePath)) {
 #        file.name=tablePath%+%"/"%+%file.name
 #    } else {
 #        file.name=file.name
 #    }    
+
+    if (include.dup.rownames) include.rownames=F
+    
+    #require(xtable)
     if (!endsWith(file.name,".tex")) file.name=file.name%+%".tex"
     
     if(is.data.frame(dat)) dat=list(dat)
@@ -491,15 +504,17 @@ mytex=function(dat=NULL, file.name="temp", digits=NULL, display=NULL, align="r",
 #    else {
 #        fil1 = file(file.name, "r")
 #        # copy content to a new file until hit \end{document}, assuming that is the last line
-#        n=as.numeric(strsplit(system ("wc -l "%+%file.name, intern=T), " ")[[1]][1])
+#        n=as.numeric(strsplit(system ("wc -l "%+%file.name, intern=TRUE), " ")[[1]][1])
 #        print(n)
 #        tmp = readLines(fil1, n-1)
 #        close(fil1)
-#        cat (concatList(tmp, "\n"), file=file.name, append=F)
+#        cat (concatList(tmp, "\n"), file=file.name, append=FALSE)
 #    }
     
     if (length(dat)>0) {
+        names(dat)=gsub("_"," ",names(dat))
         for (i in 1:length(dat)) {
+            cat ("\\leavevmode\\newline\\leavevmode\\newline\n", file=file.name, append=TRUE)
             dat1 = dat[[i]]        
             .ncol=ncol(dat1)
             if (is.null(.ncol)) {
@@ -508,38 +523,47 @@ mytex=function(dat=NULL, file.name="temp", digits=NULL, display=NULL, align="r",
             }
             
             if (!is.matrix(dat1) & is.character(dat1)) {
-                cat (dat1%+%"\n\n\n", file=file.name, append=T)
+                cat (dat1%+%"\n\n\n", file=file.name, append=TRUE)
             } else {        
                 if (is.vector(dat1)) dat1=as.matrix(dat1)
                 
-                cat (names(dat)[i]%+%"\n\n", file=file.name, append=T)
+                cat (names(dat)[i]%+%"\n\n", file=file.name, append=TRUE)
                 if (!is.null(dat1)) {
                     if (!is.null(attr(dat1,"caption"))) caption=attr(dat1,"caption") else caption=NULL
-                
-                    if (!keep.row.names) rownames(dat1)=1:nrow(dat1) # there is no way to not print rownames by xtable, here we make it not so distracting
+                    
+                    if (include.dup.rownames & !is.null(rownames(dat1))) {
+                        tmp=data.frame(row = rownames(dat1),data.frame(dat1))
+                        colnames(tmp)[-1]=colnames(dat1)
+                        dat1=tmp
+                        .ncol=.ncol+1
+                    }
+                    if (lines) hline.after=c(-1,0,nrow(dat1)) else hline.after=c()
+                    if (length(align)==1) align=rep(align,.ncol+1)
                     print(..., xtable::xtable(dat1, 
                         digits=(if(is.null(digits)) rep(3, .ncol+1) else digits), # cannot use ifelse here!!!
                         display=(if(is.null(display)) rep("f", .ncol+1) else display), # or here
-                        align=rep(align,.ncol+1), caption=caption, ...), 
-                            type = "latex", file = file.name, append = T, floating = floating )
+                        align=align, caption=caption, ...), 
+                        hline.after=hline.after,
+                            type = "latex", file = file.name, append = TRUE, floating = floating, include.rownames=include.rownames )
                 }
-                cat ("\n", file=file.name, append=T)
+                cat ("\n", file=file.name, append=TRUE)
             }
+        
         }
     }
     
     if(!append) mytex.end(file.name)
-    print ("data saved to "%+%getwd()%+%"/"%+%file.name)
+    cat ("Saving data to "%+%getwd()%+%"/"%+%file.name%+%"\n")
 }
 #x=matrix(0,2,2)
 #attr(x,"caption")="cap"
-#mytex(x, floating=T)
+#mytex(x, floating=TRUE)
 
 
 # write a table that contains mean and sd to temp.tex in the current working directory, getwd()
 # models can be a list of models, or a single model
-make.latex.coef.table = function (models, model.names=NULL, row.major=F, round.digits=NULL) {
-# e.g.: models=list(gam1, gam2); round.digits= c(3,3,3,3,3); model.names=c("gam1", "gam2");  row.major=T   
+make.latex.coef.table = function (models, model.names=NULL, row.major=FALSE, round.digits=NULL) {
+# e.g.: models=list(gam1, gam2); round.digits= c(3,3,3,3,3); model.names=c("gam1", "gam2");  row.major=TRUE   
     if (! ("list" %in% class (models) ) ) {models=list(models)}
     
     numParams = nrow (getFixedEf(models[[1]]))
@@ -618,7 +642,7 @@ mix = function (a, b) {
 # e.g. plotSeries (cbind(1:10, 2:11, 3:12))
 plotSeries = function(dat, main="", legend=NULL,ylim=NULL,col=NULL,lty=NULL,ylab=NULL,type="b"
     ,legend.cex=1,legend.x="topleft",legend.inset=0,legend.bty="n",pch=NULL,     ...) {
-    if (is.null (ylim)) ylim=range(dat[,2:ncol(dat)], na.rm=T)
+    if (is.null (ylim)) ylim=range(dat[,2:ncol(dat)], na.rm=TRUE)
     if (is.null (col)) col=1:(ncol(dat)-1)
     if (is.null (lty)) lty=rep(1,(ncol(dat)-1))
     if (is.null (ylab)) ylab=""
@@ -638,16 +662,16 @@ plotSeries = function(dat, main="", legend=NULL,ylim=NULL,col=NULL,lty=NULL,ylab
 
 #generating rejective sample
 rejective.sampling = function (N, n, pik) {
-    s = sample(N, n, replace = T, prob = pik)
+    s = sample(N, n, replace = TRUE, prob = pik)
     while (length(unique(s)) != n) {
-        s = sample(N, n, replace = T, prob = pik)
+        s = sample(N, n, replace = TRUE, prob = pik)
     } 
     s   
 }
 
 #mysystem can call any exe file
 mysystem = function (cmd, ...) {
-    system ( paste(Sys.getenv("COMSPEC")," /c ",cmd) , invisible =T, intern=F, ...)
+    system ( paste(Sys.getenv("COMSPEC")," /c ",cmd) , invisible =TRUE, intern=FALSE, ...)
 }
 
 getModeFromLocfit=function (fit) {
@@ -765,7 +789,7 @@ mypostscript=function (file="temp", mfrow=c(1,1), mfcol=NULL, width=NULL, height
     
     if(save2file){      
         if (ext=="pdf") pdf (paper="special", file=file%+%"."%+%ext, width=width, height=height, ...)
-        else postscript (paper="special", horizontal=F, file=file%+%"."%+%ext, width=width, height=height, ...)
+        else postscript (paper="special", horizontal=FALSE, file=file%+%"."%+%ext, width=width, height=height, ...)
     } else {
         print("not saving to file")
     }
@@ -823,7 +847,7 @@ mypostscript.old=function (file="temp", mfrow=c(1,1), mfcol=NULL, width=NULL, he
     }
     
     if (type=="pdf") pdf (paper="special", file=file%+%"."%+%type, width=width, height=height, ...)
-    else postscript (paper="special", horizontal=F, file=file%+%"."%+%type, width=width, height=height, ...)
+    else postscript (paper="special", horizontal=FALSE, file=file%+%"."%+%type, width=width, height=height, ...)
     
     if (!is.null(mfcol)) par(mfcol=mfcol)
     else par(mfrow=mfrow)    
@@ -1040,7 +1064,7 @@ getFixedEf.MIresult=function(mir) {
     cbind(coef(mir), sqrt(diag(vcov(mir))))
 }
 
-getFixedEf.ltm=function (fit) {
+getFixedEf.stm=function (fit) {
     fit[-1,1:2]
 }
 
@@ -1054,7 +1078,7 @@ mypredict <- function(object, ...) UseMethod("mypredict")
 # from Thomas Lumley
 infjack.glm<-function(glm.obj,groups){
     umat<-estfun.glm(glm.obj)
-    usum<-rowsum(umat,groups,reorder=F)
+    usum<-rowsum(umat,groups,reorder=FALSE)
     modelv<-summary(glm.obj)$cov.unscaled
     modelv%*%(t(usum)%*%usum)%*%modelv
 }
@@ -1062,7 +1086,7 @@ infjack.glm<-function(glm.obj,groups){
 # from Thomas Lumley
 jack.glm<-function(glm.obj,groups){
     umat<-jackvalues(glm.obj)
-    usum<-rowsum(umat,groups,reorder=F)
+    usum<-rowsum(umat,groups,reorder=FALSE)
     t(usum)%*%usum*(nrow(umat)-1)/nrow(umat)
 }
 
@@ -1123,13 +1147,13 @@ getFixedEf.geese = function (geese1) {
     summary(geese1)$mean
 }
     
-getFixedEf.glm = function (glm1, exp=F) {
+getFixedEf.glm = function (glm1, exp=FALSE) {
     out=summary(glm1)$coef
     if(exp) out[,1]=exp(out[,1])
     out
 }
 
-getFixedEf.logistf = function (fit, exp=F) {
+getFixedEf.logistf = function (fit, exp=FALSE) {
     temp = summary(fit)
     out = cbind (coef=temp$coef, se=NA, p.value=temp$prob)
     if(exp) out[,1]=exp(out[,1])
@@ -1158,7 +1182,7 @@ getFixedEf.inla = function (inlafit) {
     tmp.name = row.names(tmp)[n]
     # move intercept to the top
     if (tmp.name=="intercept") {
-        tmp = rbind (tmp[n,],tmp)[1:n,,drop=F]
+        tmp = rbind (tmp[n,],tmp)[1:n,,drop=FALSE]
         dimnames (tmp)[[1]][1] = tmp.name
     }
     # rename first column
@@ -1246,8 +1270,8 @@ mysummary.lm = function (object, correlation = FALSE, symbolic.cor = FALSE, ...)
     se <- sqrt(diag(R) * resvar)
     est <- z$coefficients[Qr$pivot[p1]]
     #youyi
-    ci.l = est - qt(.975, rdf, lower.tail=T)*se
-    ci.r = est + qt(.975, rdf, lower.tail=T)*se
+    ci.l = est - qt(.975, rdf, lower.tail=TRUE)*se
+    ci.r = est + qt(.975, rdf, lower.tail=TRUE)*se
     tval <- est/se
     ans <- z[c("call", "terms")]
     ans$residuals <- r
@@ -1337,8 +1361,8 @@ mysummary.lm = function (object, correlation = FALSE, symbolic.cor = FALSE, ...)
 #    se <- sqrt(diag(x$var))
 #    z <- x$coefficients/se
 #    P <- 2 * (1 - pt(abs(z), rdf))
-#    ci.l = x$coefficients - qt(.975, rdf, lower.tail=T)*se
-#    ci.r = x$coefficients + qt(.975, rdf, lower.tail=T)*se
+#    ci.l = x$coefficients - qt(.975, rdf, lower.tail=TRUE)*se
+#    ci.r = x$coefficients + qt(.975, rdf, lower.tail=TRUE)*se
 #    co <- cbind(x$coefficients, se, z, P, ci.l, ci.r)
 #    dimnames(co) <- list(names(x$coefficients), c("Value", "Std. Error", 
 #        "t", "Pr(>|t|)", "CI left", "CI right"))
@@ -1402,8 +1426,8 @@ mysummary.glm = function (object, dispersion = NULL, correlation = FALSE, symbol
         tvalue <- coef.p/s.err
         
         #youyi
-        ci.l = coef.p - qt(.975, df.r, lower.tail=T)*s.err
-        ci.r = coef.p + qt(.975, df.r, lower.tail=T)*s.err
+        ci.l = coef.p - qt(.975, df.r, lower.tail=TRUE)*s.err
+        ci.r = coef.p + qt(.975, df.r, lower.tail=TRUE)*s.err
     
         dn <- c("Estimate", "Std. Error")
         if (!est.disp) {
@@ -1713,9 +1737,10 @@ getVarComponent <- function(object, ...) UseMethod("getVarComponent")
 #    mysapply(tmp, function (comp) attr(comp, "stddev") )
 #}
 
-getVarComponent.lme = function (lme.fit) {
-    VarCorr(lme.fit)
-}
+# comment out b/c building other packages, we will need to include dependency on some other packages that define VarCorr
+#getVarComponent.lme = function (lme.fit) {
+#    VarCorr(lme.fit)
+#}
 
 
 # used to get mean and sd from a jags or winbugs sample, getVarComponent.matrix and getFixedEf.matrix do the same thing
@@ -1870,7 +1895,6 @@ plot.marginals=function (.data.model, prior, seed=NA) {
 #        lines(jags.marginal$x, jags.marginal$y )
         legend(legend=c("mcmc","hyperpar"), col=c(1,3),x="topright", inset=0, bty="o", lty=1, cex=.6)
         title(main=.data.model@gibbs.watch.list[i])
-        #title(main="n="%+%a$n%+%", T="%+%a$T%+%", tao="%+%(1/a$sigma2)%+%", prior=Ga("%+%inla.f.param[1]%+%", rate="%+%inla.f.param[2]%+%")")
     }
     dev.off()
 }
@@ -1913,7 +1937,7 @@ getExt = function(name){
 # generate random number from (generalized) Bernoulli dist
 # if generalized, output is 1,2,3,...; otherwise, output is 1 or 0
 # n is number of random numbers to generate, prob can be one number or a vector
-rbern=function(n, prob, generalized=F) {
+rbern=function(n, prob, generalized=FALSE) {
     if (!generalized){
         # binary outcome
         if (length(prob)==1) {
@@ -2154,8 +2178,8 @@ N.G.E <- function(yy, YY)  ## sum I(YY >= yy[i])
 
 
 # both dat must have two columns, each row is dat from one subject
-# x.ori=0; xaxislabels=rep("",2); cex.axis=1; add=F; xlab=""; ylab=""; pcol=NULL; lcol=NULL
-my.interaction.plot=function(dat, x.ori=0, xaxislabels=rep("",2), cex.axis=1, add=F, xlab="", ylab="", pcol=NULL, lcol=NULL, ...){
+# x.ori=0; xaxislabels=rep("",2); cex.axis=1; add=FALSE; xlab=""; ylab=""; pcol=NULL; lcol=NULL
+my.interaction.plot=function(dat, x.ori=0, xaxislabels=rep("",2), cex.axis=1, add=FALSE, xlab="", ylab="", pcol=NULL, lcol=NULL, ...){
     if (!add) plot(0,0,type="n",xlim=c(1,2),ylim=range(dat), ylab=ylab, xlab=xlab, xaxt="n", ...)
     cex=.25; pch=19
     if (is.null(lcol)) lcol=ifelse(dat[,1]>dat[,2],"red","black")
@@ -2171,7 +2195,7 @@ myboxplot <- function(object, ...) UseMethod("myboxplot")
 
 # myboxplot.formula and myboxplot.list make a boxplot with data points and do inferences for two group comparions. 
 # cex=.5; ylab=""; xlab=""; main=""; box=FALSE; highlight.list=NULL; at=NULL;pch=1;col=1;
-myboxplot.formula=function(formula, data, cex=.5, ylab="", xlab="", main="", box=T, at=NULL, pch=1, col=1, test=c("t","w"), ...){
+myboxplot.formula=function(formula, data, cex=.5, ylab="", xlab="", main="", box=TRUE, at=NULL, pch=1, col=1, test=c("t","w"), ...){
     
     if (box) {
         boxplot(formula, data, range=0, ylab=ylab, xlab=xlab, at=at, main=main, col=NULL,...)
@@ -2200,7 +2224,7 @@ myboxplot.formula=function(formula, data, cex=.5, ylab="", xlab="", main="", box
     }
     
 }
-myboxplot.list=function(data, cex=.5, ylab="", xlab="", main="", box=T, at=NULL, pch=1, col=1, test=c("t","w"), ...){
+myboxplot.list=function(data, cex=.5, ylab="", xlab="", main="", box=TRUE, at=NULL, pch=1, col=1, test=c("t","w"), ...){
     
     if (box) {
         boxplot(data, range=0, ylab=ylab, xlab=xlab, at=at, main=main, col=NULL,...)
@@ -2230,7 +2254,7 @@ myboxplot.list=function(data, cex=.5, ylab="", xlab="", main="", box=T, at=NULL,
 
 
 # an old function I wrote
-#myboxplot=function(formula,data,showNames=T, subset=NULL,... ){
+#myboxplot=function(formula,data,showNames=TRUE, subset=NULL,... ){
 #    if (!is.null(subset)) 
 #        data = subset (data, subset)
 #
@@ -2395,22 +2419,6 @@ mylegend=function(legend, x, lty=NULL,bty="n", ...) {
     legend(bty=bty,x=x, legend=legend, lty=lty, ...)
 }
 
-# exp.z.beta is a vector
-rltm=function (n, model, exp.z.beta=1, la0=1) {
-
-    x=runif(n)
-    if (model=="PH") {
-        ft = -log(1-x) / (exp.z.beta*la0)
-    } else if (model=="PO") {
-        ft = log( 1+x/(1-x)/exp.z.beta ) / la0
-    } else if (model=="P2") {
-        ft = log( 1+ (1/(1-x)^2-1)/exp.z.beta ) /2/la0
-    } else {
-        stop ("model not supported")
-    }
-    ft
-}
-
 # mixture normal density funtion 
 # mix.p: proportion of first component
 dmixnorm=function (x, mix.p, sd1, sd2, log=FALSE){
@@ -2458,7 +2466,7 @@ plot.cor.default=function(x,y,...){
 }
 
 # col can be used to highlight some points
-plot.cor.formula=function(formula,data,main="",method=c("pearson","spearman"),col=1,cex=.5,plot.abline=T,...){
+plot.cor.formula=function(formula,data,main="",method=c("pearson","spearman"),col=1,cex=.5,plot.abline=TRUE,...){
     vars=dimnames(attr(terms(formula),"factors"))[[1]]
     cor.=sapply (method, function (method) {
         cor(data[,vars[1]],data[,vars[2]],method=method,use="p")
@@ -2508,7 +2516,7 @@ covariability=function(x,y){
 #        covar[i,j]<-covar[j,i]<-covariability(seqs.mat.a[,i], seqs.mat.a[,j])
 #    }
 #}
-#sort(round(covar,3), decre=T)[1:100]
+#sort(round(covar,3), decre=TRUE)[1:100]
 
 # output format:
 #+1 1:0.708333 2:1 3:1 4:-0.320755 5:-0.105023 6:-1 7:1 8:-0.419847 9:-1 10:-0.225806 12:1 13:-1 
@@ -2596,7 +2604,7 @@ abline.pt.slope=function(pt1, slope,...){
 #abline.pt.slope(c(1,1), 1)
 
 
-mean.med=function(x, na.rm=F){
+mean.med=function(x, na.rm=FALSE){
     c(mean=mean(x, na.rm=na.rm), sd=sd(x, na.rm=na.rm), median=median(x, na.rm=na.rm), iqr=IQR(x, na.rm=na.rm), var=var(x, na.rm=na.rm))
 }
 
@@ -2630,7 +2638,7 @@ get.st.mean=function(st.fit) {
     c(mean)
 }
 
-# default row.names to F
+# default row.names to FALSE
 # file name needs no file extension
 mywrite.csv = function(x, file="tmp", row.names=FALSE, digits=NULL, ...) {  
     if (!is.null(digits)) {
@@ -2642,7 +2650,7 @@ mywrite.csv = function(x, file="tmp", row.names=FALSE, digits=NULL, ...) {
             }                
         }
     }
-    print("Writing csv file to "%+%getwd()%+%"/"%+%file%+%".csv", quote=F)
+    print("Writing csv file to "%+%getwd()%+%"/"%+%file%+%".csv", quote=FALSE)
     write.csv(x, file=file%+%".csv", row.names=row.names, ...)
 }
 
@@ -2668,14 +2676,15 @@ keepWarnings <- function(expr) {
     list(value=value, warnings=localWarnings) 
 } 
 
-mymatplot=function(x, make.legend=T, legend=NULL, legend.x=9, lty=1:5, pch=NULL, col=1:6, legend.title=NULL, xlab=NULL, ylab="", draw.x.axis=T, bg=NULL, ...) {
+mymatplot=function(x, make.legend=TRUE, legend=NULL, legend.x=9, lty=1:5, pch=NULL, col=1:6, legend.title=NULL, legend.cex=1, xlab=NULL, ylab="", draw.x.axis=TRUE, bg=NA, ...) {
     if (is.null(xlab)) xlab=names(dimnames(x))[1]
     if (is.null(legend.title)) legend.title=names(dimnames(x))[2]
     matplot(x=x, lty=lty, pch=pch, col=col, xlab=xlab, xaxt="n", ylab=ylab, bg=bg, ...)
     if(draw.x.axis) axis(side=1, at=1:nrow(x), labels=rownames(x))
     if (make.legend) {
         if (is.null(legend)) legend=colnames(x)
-        mylegend(legend, x=legend.x, lty=lty, title=legend.title, pch=pch, col=col, pt.bg=bg)
+        if (length(unique(pch))>1) mylegend(legend, x=legend.x, lty=lty, title=legend.title, pch=pch, col=col, pt.bg=bg, cex=legend.cex)
+        if (length(unique(pch))==1) mylegend(legend, x=legend.x, lty=lty, title=legend.title, col=col, pt.bg=bg, cex=legend.cex)
     }
 }
 
@@ -2702,11 +2711,19 @@ remove.prefix=function(s,sep="_"){
 }
 
 # make table that shows both counts/frequency and proportions
-table.prop=function (x,y) {
+# style 1: count only; 2: count + percentage; 3: percentage only
+table.prop=function (x,y,digit=1,style=2) {
     tbl=table(x,y)
     prop = apply (tbl, 2, prop.table)
-    paste(tbl, round(prop*100), sep="")    
-    matrix(tbl %+% " (" %+% round(prop*100) %+% ")", nrow=2)    
+    if (style==2) {
+        res = tbl %+% " (" %+% round(prop*100,1) %+% ")"
+    } else if (style==3) {
+        res = round(prop*100,digit)
+    } else res=tbl
+    res=matrix(res, nrow=2)    
+    dimnames(res)=dimnames(tbl)
+    names(dimnames(res))=NULL
+    res
 }
 
 
@@ -2722,13 +2739,71 @@ methods4<-function(classes, super=FALSE, ANY=FALSE){
 } 
  
 
-# this function contains "\""), which makes all the following line be miss-interpreted as being in quotes
-myprint.default = function (..., newline=T, digits=3) {     
+# make two tables, rotating v1 and v2
+# fit is an object that needs to have coef and vcov
+# list the effect of one variable at -1, 0, 1 of another variable
+# v1.type and v2.type: continuous, binary, etc
+interaction.table=function(fit, v1, v2, v1.type="continuous", v2.type="continuous", logistic.regression=TRUE){
+    
+    coef.=coef(fit) 
+    cov.=vcov(fit)    
+    var.names=names(coef.)
+    v1.ind = match(v1, var.names)
+    v2.ind = match(v2, var.names)
+    itxn.ind = match(v1%+%":"%+%v2, var.names)
+    if(is.na(itxn.ind)) itxn.ind = match(v2%+%":"%+%v1, var.names)
+    if (any(is.na(c(v1.ind, v2.ind, itxn.ind)))) {
+        stop("v1, v2, or interaction not found in var.names")
+    }
+    
+    ret=list()
+    for (i in 1:2) {
+        
+        if (i==1) {
+            ind.1=v1.ind; type.1=v1.type
+            ind.2=v2.ind; type.2=v2.type
+        } else {
+            ind.1=v2.ind; type.1=v2.type
+            ind.2=v1.ind; type.2=v1.type
+        }
+        
+        lin.combs=NULL
+        if(type.2!="binary") {
+            lin.comb.1=rep(0, length(coef.)); lin.comb.1[ind.1]=1; lin.comb.1[itxn.ind]=-1; lin.combs=rbind(lin.combs, "-1"=lin.comb.1)
+        }
+        lin.comb.1=rep(0, length(coef.)); lin.comb.1[ind.1]=1; lin.comb.1[itxn.ind]=0;  lin.combs=rbind(lin.combs, "0"=lin.comb.1)
+        lin.comb.1=rep(0, length(coef.)); lin.comb.1[ind.1]=1; lin.comb.1[itxn.ind]=1;  lin.combs=rbind(lin.combs, "1"=lin.comb.1)
+    
+        effect = lin.combs%*%coef.
+        sd. = sqrt(diag(lin.combs%*%cov.%*%t(lin.combs)))
+        p.val = pnorm(abs(effect)/sd., lower.tail=FALSE)
+        lci=effect-1.96*sd.
+        uci=effect+1.96*sd.
+        
+        res = cbind(effect, lci, uci, p.val)
+        colnames(res)=c("coef","(lower","upper)","p value")
+        if (logistic.regression) {
+            res[,1:3]=exp(res[,1:3])
+            colnames(res)[1]="OR"
+        }
+        
+        ret[[i]]=res 
+    }    
+    
+    names(ret) = "Effect of increasing "%+%c(v1,v2) %+% " by 1 at selected values of " %+% c(v2,v1)
+    ret
+       
+}
+
+
+# this function is placed at the bottom of the file because it contains "\""), which makes all the following line be miss-interpreted as being in quotes
+myprint.default = function (..., newline=TRUE, digits=3) {   
     digits.save=getOption("digits")
     options(digits=digits)
     object <- as.list(substitute(list(...)))[-1]
     x=list(...)
     for (i in 1:length(x)) {
+        if (is(x[[i]],"formula")) {cat(as.character(x[[i]])); next}
         tmpname <- deparse(object[[i]])[1]
         #str(tmpname)
         #str(gsub("\\\\","\\",gsub("\"", "", tmpname)))

@@ -2,7 +2,7 @@ export(rumi, ncal, ncal.formula, ncal.character)
 export(bcrm, coef.bcrm, vcov.bcrm, plot.bcrm, print.bcrm, getVarComponent.bcrm, get.single.fit)
 export(drm.fit, getVarComponent.drc)
 
-export(gh2cla, cla2gh, cla2ed50)
+export(gh2cla, cla2gh, cla2ed50, ed502cla, ed50b2cla)
 export(FivePL.t, FivePL.x.inv.func, FivePL.t.func, FivePL.x, FivePL.x.inv, FivePL.t.inv, FivePL.t.inv.func, FourPL.x, FourPL.t.func, FourPL.x.inv)
 export(vpl1.deriv, vpl1.deriv.func, vpl2.deriv, vpl2.deriv.func, vpl3.deriv, vpl3.deriv.func)
 export(ED5PL, plot5PL, getConc)

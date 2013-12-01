@@ -42,6 +42,7 @@ fit.norm=attr(out.norm, "fits")
 
 checkEqualsNumeric(get.curve.param.list(p.eotaxin[1,])$b, -0.9155976, tolerance=tolerance)
 checkEqualsNumeric(get.curve.param.list(p.eotaxin)$b[5:6], c(-0.7751437, -0.7762582), tolerance=tolerance)
+checkEqualsNumeric(get.curve.param.list(p.eotaxin[1,c("logtao","b","c","d","f")])$e, 59.1-0.0276, tolerance=tolerance)
 
 
 checkEqualsNumeric(

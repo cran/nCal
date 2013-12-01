@@ -9,7 +9,7 @@ ncal.formula = function (formula, data,
     test.LOD=FALSE, find.LOD=FALSE, find.LOQ=FALSE, grid.len=50, lod.ci=95,
     unk.replicate=NULL, find.best.dilution=FALSE, verbose=FALSE,     
     control.jags=list(n.iter=1e5, jags.seed=1, n.thin=NULL, keep.jags.samples=FALSE, n.adapt=1e3), 
-    cex=.5, additional.plot.func=NULL,
+    cex=.5, additional.plot.func=NULL, check.out.of.range=1,
 ...)
 {
     
@@ -39,7 +39,8 @@ ncal.formula = function (formula, data,
     if (plot.se.profile) find.LOQ=T
     
     if (log.transform) {
-        if (any(data[[outcome.coln]]<=0)) stop(outcome.coln%+%" var cannot be 0 or less")
+        if (any(data[[outcome.coln]]<=0)) warning(outcome.coln%+%" var cannot be 0 or less, will set to 1")
+        data[[outcome.coln]][data[[outcome.coln]]<=0]=1
     }
                     
     # convert bead_type to analyte, backward compatibility
@@ -163,7 +164,7 @@ ncal.formula = function (formula, data,
                         if (is.null(unk.replicate)) unk.replicate=nrow(dat.unk.s.d)
                         y.=dat.unk.s.d[[outcome.coln]]
                         if (log.transform) y.=log(y.)
-                        estimated = getConc(fit, mean(y.), n.replicate=length(y.), x.range=exp(c(std.low,std.high)), y.range=c(y.low,y.high), verbose=verbose)
+                        estimated = getConc(fit, mean(y.), n.replicate=length(y.), x.range=exp(c(std.low,std.high)), y.range=c(y.low,y.high), verbose=verbose, check.out.of.range=check.out.of.range)
                         estimated = unname(estimated)
                         if (verbose) print(estimated)
     
@@ -220,7 +221,7 @@ ncal.formula = function (formula, data,
                     if(verbose) print("nCal 620")
                     # low end
                     x.hat.low=getConc(fit, seq(fit.low, mid.log.fi, length=grid.len+1)[-1], n.replicate=rep(unk.replicate,grid.len), x.range=exp(c(std.low,std.high)), 
-                        y.range=c(y.low,y.high), verbose=verbose)[,c(1,2,6,7,8,4,5)]
+                        y.range=c(y.low,y.high), verbose=verbose, check.out.of.range=check.out.of.range)[,c(1,2,6,7,8,4,5)]
                     same.as.low = x.hat.low[,1] - dd*x.hat.low[,2] < std.low
                     #same.as.low = exp(x.hat.low[,1]) - dd * exp(x.hat.low[,1]) * x.hat.low[,2] < exp(std.low)
                     same.as.low.rle=rle(same.as.low)
@@ -229,7 +230,7 @@ ncal.formula = function (formula, data,
                     if(verbose) print("nCal 640")
                     # high end
                     x.hat.high=getConc(fit, seq(fit.high, mid.log.fi, length=grid.len+1)[-1], n.replicate=rep(unk.replicate,grid.len), x.range=exp(c(std.low,std.high)), 
-                        y.range=c(y.low,y.high))[,c(1,2,6,7,8,4,5)]
+                        y.range=c(y.low,y.high), check.out.of.range=check.out.of.range)[,c(1,2,6,7,8,4,5)]
                     same.as.high = x.hat.high[,1] + dd * x.hat.high[,2] > std.high
                     #same.as.high = exp(x.hat.high[,1]) + dd * exp(x.hat.high[,1]) * x.hat.high[,2] > exp(std.high)
                     same.as.high.rle=rle(same.as.high)
@@ -383,8 +384,8 @@ rumi = function(data, ...) ncal.formula(formula=log(fi)~expected_conc, data, ...
     
 
 
-# n.replicate=1; check.out.of.range=F; x.range=NULL; y.range=NULL; verbose=FALSE
-getConc=function(fit, y, n.replicate=1, check.out.of.range=TRUE, x.range=NULL, y.range=NULL, verbose=FALSE) {
+# n.replicate=1; check.out.of.range=1; x.range=NULL; y.range=NULL; verbose=FALSE
+getConc=function(fit, y, n.replicate=1, check.out.of.range=1, x.range=NULL, y.range=NULL, verbose=FALSE) {
     
     if (verbose) print("getConc 100")
     param=coef(fit,type="classical")
@@ -473,15 +474,21 @@ getConc=function(fit, y, n.replicate=1, check.out.of.range=TRUE, x.range=NULL, y
     }
     
     if (verbose) print("getConc 800")
-    if (check.out.of.range) {
-        if (!is.null(x.range)) {
-            x = treat.out.of.bound.2 (x, x.range)
-        }
-    }
+    if (check.out.of.range==1) {
+        # by construction, x.range has two elements, and the first is small and the second is large
+        se.t[x>x.range[2] | x<x.range[1]]=Inf
+        x[x>x.range[2]]=x.range[2]
+        x[x<x.range[1]]=x.range[1]/2
+    } else if (check.out.of.range==2) {
+        se.t[x==Inf | x==0]=Inf
+        x[x==Inf]=x.range[2]
+        x[x==0]=x.range[1]/2
+    } else stop ("check out of range mode not supported")
     
-    # if estimated conc outside estimated asymptote, set se to Inf
-    se1 = Inf
-    se.t=ifelse(y<c | y>d, se1, se.t)
+    # replace by se.t[x>x.range[2] | x<x.range[1]]=Inf
+#    # if estimated conc outside estimated asymptote, set se to Inf
+#    se1 = Inf
+#    se.t=ifelse(y<c | y>d, se1, se.t)
     
     # may not be properly vectorized            
 #    if(check.out.of.range) {

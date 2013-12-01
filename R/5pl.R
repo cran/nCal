@@ -10,7 +10,7 @@ get.curve.param.list=function(param){
     if (is.matrix(param)) {
         # do nothing
     } else if (is.vector(param)) {
-        param=matrix(param, nrow=1, dimnames=list(NULL, substr(names(param),1,1))) # as.matrix turns a vector into a column
+        param=matrix(param, nrow=1, dimnames=list(NULL, names(param))) # as.matrix turns a vector into a column
     } else {
         stop ("param is not matrix or vector")
     }
@@ -19,14 +19,21 @@ get.curve.param.list=function(param){
     if (!"d" %in% colnames(param)) stop("param does not have d")
     
     tmp=substr(colnames(param),1,1)
+    tmp["logtao"==colnames(param)]="logtao" # logtao can not be shortened to l
     colnames(param)=tmp
     if("b" %in% tmp & "e" %in% tmp) { 
         # classical parameterization
     } else if ("g" %in% tmp & "h" %in% tmp) {
         # gh parameterization
         param=gh2cla(param) 
+    } else if ("logtao" %in% tmp & "b" %in% tmp) {
+        # ED50 parameterization
+        param=ed502cla(param) 
+    } else if ("logtao" %in% tmp & ("h" %in% tmp | "logh" %in% tmp)) {
+        # ED50 parameterization
+        param=ed50b2cla(param) 
     } else {
-        stop("not gh not cla: "%+%colnames(param))
+        stop("not gh not cla not ED50: "%+%concatList(colnames(param),","))
     }
     
     b=param[,"b"]; c=param[,"c"]; d=param[,"d"]; e=param[,"e"]
@@ -202,11 +209,6 @@ treat.out.of.bound=function(y, p, t.range){
     t.0
 }
 
-treat.out.of.bound.2=function(x, x.range){
-    x[x==Inf]=x.range[2]
-    x[x==0]=x.range[1]/2
-    x
-}
 
 
 
@@ -237,7 +239,7 @@ get.abs.dev = function(p1, p2, t.range, y.range) {
         })
         t.hat = f.hat(y)
         t.hat = sapply (1:length(y), function (i) {
-            if (is.nan(t.hat[i])) treat.out.of.bound (y[i], p2, t.range) else t.hat[i]
+            if (is.nan(t.hat[i]) | Inf==abs(t.hat[i])) treat.out.of.bound (y[i], p2, t.range) else t.hat[i]
         })
         abs(t.hat - t.0)
     }, lower=y.range[1], upper=y.range[2], subdivisions=1000 )$value/(y.range[2]-y.range[1])

@@ -21,7 +21,7 @@
     unk.replicate=NULL, find.best.dilution=FALSE, verbose=FALSE,     
     control.jags=list(n.iter=1e5, jags.seed=1, n.thin=NULL, 
         keep.jags.samples=FALSE, n.adapt=1e3),
-    cex=.5, additional.plot.func=NULL,
+    cex=.5, additional.plot.func=NULL, check.out.of.range=1,
 ...)
 
 \method{ncal}{character} (file, is.luminex.xls, formula, bcrm.fit, verbose=FALSE, ...)
@@ -62,6 +62,7 @@ ncalGUI (verbose=FALSE)
   \item{is.luminex.xls}{Boolean. Indicates whether the file is in the Luminex Excel file format outputted by the Bio-Plex software.}
   \item{cex}{numeric. Passed to plot functions.}
   \item{additional.plot.func}{function. Will be called after the first panel is drawn.}
+  \item{check.out.of.range}{integer. If 1, an estimated concentration is set to half of the smallest standard concentration, or the largest standard if it is outside the range of standard concentration. If 2, do this only when the estimated concentration is 0 or Inf}
 
   \item{file}{string. Name of the data file.}
   

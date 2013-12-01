@@ -91,7 +91,7 @@ The curve fit object is not returned by default, but can be returned as an attri
 fit.drm=attr(res.drm, "fits")[[1]]
 @
 
-\textit{ncal} also creates a four-panel plot (Figure~\ref{fig:Example1drm}) for each assay by default. The upper left panel shows the standard samples data and the fitted curve. The upper right panel is similar to the upper left panel, but adds a set of points representing the samples of interest. The lower left panel shows the estimated variance of the estimated concentrations as functions of the estimated concentration \citep[][]{fong2013nonlinear}. The lower right panel shows the coefficient of variation (CV) as a function of the estimated concentration. The limits of quantification (LOQ) are defined as the estimated concentrations at which the percent CV equals 20.
+\textit{ncal} also creates a four-panel plot (Figure~\ref{fig:Example1drm}) for each assay by default. The upper left panel shows the standard samples data and the fitted curve. The upper right panel is similar to the upper left panel, but adds a set of points representing the samples of interest. The lower left panel shows the estimated variance of the estimated concentrations as functions of the estimated concentration \citep[][]{fong2013nonlinear,cumberland2013nonlinear}. The lower right panel shows the coefficient of variation (CV) as a function of the estimated concentration. The limits of quantification (LOQ) are defined as the estimated concentrations at which the percent CV equals 20.
 
 
 To use \textit{bcrm} to fit a robust Bayesian hierarchical model \citep[][]{fong2013nonlinear}, simply pass \textit{bcrm.fit=TRUE} to \textit{ncal}. (Proper installation of JAGS and the R package rjags are required.)
@@ -163,7 +163,8 @@ Figure~\ref{fig:Example2} shows that in Run 2, which has multiple outliers, \tex
 
 The priors of the robust Bayesian hierarchical model used in \textit{bcrm} are specified as follows. Denote $\boldsymbol{\theta=}\left\{
 c,d,g,\log\left(  h\right)  ,\log\left(  f\right)  \right\}  $ \citep[g-h parameterization][]{richards1959flexible,fong2012robust}. Let
-$\boldsymbol{\bar{\theta}}$ be the average of the least square fit 5PL
+$\boldsymbol{\bar{\theta}}$ be the average of the least square fit 
+
 parameters across assay runs. 
 \begin{align*}
 \boldsymbol{\theta}_{0}  &  \sim N\left(  \boldsymbol{\bar{\theta}},\text{
@@ -177,9 +178,80 @@ $\varepsilon_{ik}\sim N\left(  0,\sigma^{2}\right)  $, we assume prior
 $\sigma^{-2}\sim Gamma\left(  \text{shape=}2,\text{rate=}0.06\right)  $.
 
 
-
 \bibliographystyle{apalike}
 \bibliography{nCal-vignette}
+
+\bigskip
+\section{Appendix A: Frequently asked questions}
+\begin{verbatim}
+
+Q: How do I install nCal?
+A: Please follow the following steps. Step 4 is necessary for running nCal GUI.
+1.	Install R. R can be downloaded from http://cran.r-project.org/ 
+2.	Run R. On Windows, this can be done by double-clicking on the R icon.
+3.	Install the nCal package. At the R console, type
+> install.packages ("nCal")
+and press enter.
+4.	Install the gWidgetstcltk package. At the R console, type
+> install.packages ("gWidgetstcltk")
+and press enter. 
+
+Q: How do I launch the nCal GUI?
+A: The nCal GUI is launched from within R. Please follow the following steps.
+1.	Run R. On Windows, this can be done by by double-clicking on the R icon.
+2.	At the R console, load the nCal library by
+> library (nCal)
+3.	run nCal GUI by
+> ncalGUI()
+
+Q: What other programs does nCal need to be able to import Luminex raw output?
+A: To import data from raw Luminex files, PERL and the R package gdata are needed. 
+PERL can be downloaded from http://www.activestate.com/activeperl/downloads 
+To install the gdata package, enter the following command in R.
+> install.packages("gdata")
+
+Q: What other programs does nCal need to be able to fit the robust Bayesian hierarchial model?
+A: To fit Bayesian robust hierarchical model, JAGS and the R package rjags are needed. 
+First, download and install JAGS from http://sourceforge.net/projects/mcmc-jags/files/JAGS/ 
+Second, in R enter the following command to install the rjags package.
+> install.packages("rjags")
+
+Q: Help on GUI
+A: The GUI (screenshot: http://research.fhcrc.org/content/dam/stripe/youyiFong/files/gui.pdf) 
+is divided into four sections. 
+Input
+*	You can select a file containing the input data using the browse button. 
+The nCal package comes with an example Luminex raw output xls file, 02-14A22-IgA-Biotin-tiny,
+and it is located at the R_installation_directory/library/nCal/misc folder. 
+You can use this file to test the GUI.
+*	The input file can be in one of three different formats.
+*	The Response variable field allows users to enter the name of the response variable, 
+and it defaults to log(fi). 
+*	The Concentration/dose variable field allows users to enter the name of the 
+concentration or dose variable, and it defaults to expected_conc.
+Output 
+*	The Estimated concentrations field allows users to enter the name of the file 
+to save the estimated concentrations, and it defaults to estimated_concentrations.csv. 
+The browse button next to it allows users to choose a folder to save the file in.
+*	The Calibration plots field allows users to enter the name of the file to 
+save the calibration plots, and it defaults to Calibration_plots.pdf. 
+The browse button next to it allows users to choose a folder to save the file in.
+Curve fitting method
+*	Users can choose between two curve fitting methods.
+The last section allows users to use the last fitted curve to estimate concentrations 
+for any responses entered by users. 
+*	More than one response can be separated by space or comma, e.g. 5.1, 6.3
+*	The Apply button becomes activated when there has been a fitted curve. 
+When the Apply button is clicked, a new window pops up. In the window is a table, 
+each row of which corresponds to one entered response.
+
+Q: What is the relationship between nCal and Ruminex?
+A: Ruminex is the precursor of nCal. To switch to nCal, the only necessary change is 
+to replace Ruminex with nCal in the library() command because rumi is also 
+provided in nCal and can be called in the same way as it was in Ruminex.
+
+\end{verbatim}
+
 
 
 

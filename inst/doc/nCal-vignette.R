@@ -1,5 +1,5 @@
 
-## @knitr setup, include=FALSE, cache=FALSE
+## ----setup, include=FALSE, cache=FALSE-----------------------------------
 # set global chunk options
 library(knitr)
 opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold',dev='pdf',
@@ -8,11 +8,11 @@ options(replace.assign=TRUE,width=90)
 #render_listings()
 
 
-## @knitr loadnCal, include=FALSE, cache=FALSE, tidy=TRUE, echo=TRUE
+## ----loadnCal, include=FALSE, cache=FALSE, tidy=TRUE, echo=TRUE----------
 library(nCal)
 
 
-## @knitr Example1data, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE
+## ----Example1data, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE-------
 set.seed(1)
 log.conc=log(1e4)-log(3)*9:0
 n.replicate=2
@@ -30,43 +30,43 @@ data.frame(fi=exp(6.75), expected_conc=NA, analyte="Test", assay_id="Run 1", sam
 dat=rbind(dat.std, dat.unk)
 
 
-## @knitr Example1drm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, drm fit."
+## ----Example1drm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, drm fit."----
 res.drm = ncal(log(fi)~expected_conc, dat, return.fits = TRUE)
 
 
-## @knitr Example1drmres, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, drm fit."
+## ----Example1drmres, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, drm fit."----
 res.drm 
 
 
-## @knitr Example1resultsfit, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE
+## ----Example1resultsfit, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE----
 fit.drm=attr(res.drm, "fits")[[1]]
 
 
-## @knitr Example1bcrm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, bcrm fit."
+## ----Example1bcrm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="ncal graphical output, bcrm fit."----
 res.bcrm = ncal(log(fi)~expected_conc, dat, bcrm.fit=T, return.fits = TRUE, bcrm.model="norm", control.jags=list(n.iter=5e3))
 fit.bcrm=attr(res.bcrm, "fits")
 
 
-## @knitr Example1bcrmres, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE
+## ----Example1bcrmres, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE----
 res.bcrm
 
 
-## @knitr Example1results, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE
+## ----Example1results, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE----
 rbind(cla2gh(coef(fit.drm)), coef(fit.bcrm))
 rbind(sqrt(diag(vcov(fit.drm))), sqrt(diag(vcov(fit.bcrm, type="classical"))))
 
 
-## @knitr newunknown, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE
+## ----newunknown, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE---------
 getConc(fit.bcrm, c(5.7,6.3))
 
 
-## @knitr Example2bcrm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE
+## ----Example2bcrm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE----
 
 dat=subset(hier.model.ex.2, assay_id %in% paste("Run",1:4))
 fit.bcrm=bcrm(log(fi)~expected_conc, dat, error.model="gh_t4", informative.prior=T, n.iter=1e4)
 
 
-## @knitr Example2, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="Comparing bcrm fit with drm and Prism fits."
+## ----Example2, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="Comparing bcrm fit with drm and Prism fits."----
 
 # parameters from Prism fits
 prism.1 = c("c"=1.596,"d"=10.28,"f"=0.7202,"b"=-0.8815,"e"=10^((1.597+1/0.8815*log10(2**(1/0.7202)-1))) )

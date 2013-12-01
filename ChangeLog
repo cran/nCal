@@ -106,3 +106,17 @@
 	* move unit testing code for read.luminex.xls to runit.ncal.R from
 	function help
 	* expand unit testing to all platforms with relaxed tolerance
+
+2013-07-24  V_0.4-1 Youyi Fong
+	* in drm.fit, use default ss.fct first so that the results will match drm call in most cases
+	* add check.out.of.range parameter to ncal that supports two modes of
+	checks. The default mode is a new mode which resets any estimated
+	concentration that is outside the range of standard concentrations
+
+
+2013-11-07 make fi 1 in ncal if fi is 0 or negative
+2013-11-29 use a new copy of youtil.R that does not have getVarComponent.nlme
+to avoid a warning after a drc update
+
+
+

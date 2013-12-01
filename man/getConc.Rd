@@ -8,7 +8,7 @@ Concentration Estimation
 Estimate analyte concentrations based on observed outcome and a fitted curve.
 }
 \usage{
-getConc(fit, y, n.replicate = 1, check.out.of.range = TRUE, x.range = NULL, 
+getConc(fit, y, n.replicate = 1, check.out.of.range = 1, x.range = NULL, 
     y.range = NULL, verbose = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -20,7 +20,7 @@ numeric vector. Observed outcome in the samples of interest. Each element corres
   \item{n.replicate}{
 integer. Number of replicates that are averaged to generate y}
   \item{check.out.of.range}{
-Boolean.}
+integer.}
   \item{x.range}{
 vector of 2 numbers. The minimal and maximal concentration of the standard samples
 }

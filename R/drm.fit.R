@@ -4,7 +4,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("drm.weights"))
 # robust="mean"; fit.4pl=FALSE; force.fit=F; weighting=F # default
 drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=TRUE, weighting=FALSE, coln.weight=NULL, pow.weight=1, verbose=FALSE) {
     
-    require(drc)
+    #require(drc)
     
     # drm 5pl is sensitive to the ordering of rows
     data=data[order(data$expected_conc),]
@@ -23,7 +23,8 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=TRUE, w
     fits=list()
     
     if (!fit.4pl){
-        fit1= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ss.fct.via.LL4), control=control, weights=drm.weights), silent=FALSE)    
+        # try default ss.fct first so that the results will match drm call in most cases
+        fit1= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(), control=control, weights=drm.weights), silent=FALSE)    
         
         if (!inherits(fit1, "try-error")) {
             vcov.=vcov(fit1)
@@ -46,7 +47,7 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=TRUE, w
         
         if (gof1>gof.threshold) {
             
-            if (verbose) print("ss.fct.via.LL4 fails, try ssfct.drc.1.5.2")
+            if (verbose) print("default ssfct fails, try ssfct.drc.1.5.2")
             fit2= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ssfct.drc.1.5.2), control=control, weights=drm.weights), silent=FALSE)
             
             if (!inherits(fit2, "try-error")) {
@@ -68,8 +69,8 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=TRUE, w
             
             if (gof2>gof.threshold) {
                 
-                if(verbose) print("ssfct.drc.1.5.2 fails, try default ssfct")
-                fit3 = try(drm(formula=formula, data=data, robust=robust, fct = LL.5(), control=control, weights=drm.weights), silent=FALSE)
+                if(verbose) print("ssfct.drc.1.5.2 fails, try ss.fct.via.LL4")
+                fit3 = try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ss.fct.via.LL4), control=control, weights=drm.weights), silent=FALSE)
                 
                 if (!inherits(fit3, "try-error")) {
                     vcov.=vcov(fit3)
