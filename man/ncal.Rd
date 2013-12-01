@@ -13,16 +13,20 @@
 \usage{
 
 \method{ncal}{formula} (formula, data, 
-    bcrm.fit=FALSE, bcrm.model="t4", robust="mean", 
-    weighting=FALSE, pow.weight=1,
+    bcrm.fit=FALSE, bcrm.model="t4", robust="mean", bcrm.prior="default",
     force.fit=TRUE, fit.4pl=FALSE, return.fits=FALSE, 
-    plot=TRUE, auto.layout=TRUE, plot.se.profile=TRUE, plot.log="x", 
+    plot=TRUE, auto.layout=TRUE, plot.se.profile=TRUE, plot.log="x", plot.unknown=TRUE,
     test.LOD=FALSE, find.LOD=FALSE, find.LOQ=FALSE, grid.len=50, lod.ci=95,
-    unk.replicate=NULL, find.best.dilution=FALSE, verbose=FALSE,     
+    unk.replicate=NULL, find.best.dilution=FALSE, unk.median=FALSE,
     control.jags=list(n.iter=1e5, jags.seed=1, n.thin=NULL, 
-        keep.jags.samples=FALSE, n.adapt=1e3),
-    cex=.5, additional.plot.func=NULL, check.out.of.range=1,
+        keep.jags.samples=FALSE, n.adapt=1e3), 
+    cex=.5, additional.plot.func=NULL, check.out.of.range=1, xlab=NULL, ylab=NULL, 
+    main=NULL,
+    var.model=c("constant","power"), log.both.sides=FALSE,
+    control.crm.fit=list(max.iter=20),
+    verbose=FALSE, 
 ...)
+
 
 \method{ncal}{character} (file, is.luminex.xls, formula, bcrm.fit, verbose=FALSE, ...)
 
@@ -39,9 +43,12 @@ ncalGUI (verbose=FALSE)
   
   \item{bcrm.fit}{Boolean. If TRUE, a Bayesian random effects model is fitted, else a drm model is fitted.}
   \item{bcrm.model}{string. Noise model used in bcrm. See error.model in the help file for bcrm for more information.}
+  \item{bcrm.prior}{string.}
+  \item{var.model}{constant: constant variance. power: power variance function}
   \item{robust}{string. Passed to drm.}
   
   \item{plot}{ a Boolean, default FALSE. This controls whether or not to make plots of the fitted curves and the standard error profiles }
+  \item{plot.unknown}{ a Boolean. This controls whether or not to make plots of the fitted curves with unknown sample concentrations layered on top }
   \item{auto.layout}{ a Boolean, default TRUE This controls whether or not to let bcrm controls the layout of the plots }
   \item{test.LOD}{ a Boolean, default TRUE This controls whether or not to test for limits of detection }
   \item{plot.se.profile}{ a Boolean, default FALSE. This controls whether or not to make plots of standard error profile, this doubles as find.LOQ }
@@ -52,17 +59,21 @@ ncalGUI (verbose=FALSE)
   \item{return.fits}{ a Boolean, default FALSE. This controls whether or not to return as an attribute the curve fits }
   \item{grid.len}{ an integer, default 500 This determines the resolution of the standard error profile plot and limits of quantification }
   \item{unk.replicate}{ an integer, default NULL. This is the number of replicates for an unknown sample (at a single dilution if multiple dilutions are available) }
-  \item{verbose}{ a Boolean, default FALSE. This controls whether or not to print detailed messages }
+  \item{unk.median}{ a Boolean, default FALSE. If TRUE, median of unknown replicates are used to estimate conc, instead of mean}
   \item{fit.4pl}{ a Boolean, default FALSE }
-  \item{weighting}{ a Boolean. Determines whether to fit weighted least square using drm.}
-  \item{pow.weight}{ numeric. Power of the weight variance function, e.g. -1, -2. }
   \item{lod.ci}{ an integer, default 95. If default, one sided 50 percent CI is used to determine LODi. }
   \item{plot.log}{ a string, default "x". Used to populate the log argument of the plot function.}
   \item{control.jags}{list. Parameters controlling the behavior of posterior sampling by JAGS.}
   \item{is.luminex.xls}{Boolean. Indicates whether the file is in the Luminex Excel file format outputted by the Bio-Plex software.}
   \item{cex}{numeric. Passed to plot functions.}
+  \item{main}{plotting parameter}
+  \item{xlab}{plotting parameter}
+  \item{ylab}{plotting parameter}
   \item{additional.plot.func}{function. Will be called after the first panel is drawn.}
   \item{check.out.of.range}{integer. If 1, an estimated concentration is set to half of the smallest standard concentration, or the largest standard if it is outside the range of standard concentration. If 2, do this only when the estimated concentration is 0 or Inf}
+  \item{verbose}{ a Boolean, default FALSE. This controls whether or not to print detailed messages }
+  \item{log.both.sides}{Boolean, whether to log transform both sides of the formula}
+  \item{control.crm.fit}{list. Parameters controlling the behavior of crm.fit}
 
   \item{file}{string. Name of the data file.}
   
@@ -148,10 +159,11 @@ Standard curves are plotted. When plot.se.profile is TRUE, error profiles are al
 The other is 100 x (standard error of estimated concentration / estimated concentration) versus log estimated concentration. 
 }
 
-\author{ Youyi Fong \email{yfong@fhcrc.org}.}
+\author{ Youyi Fong \email{yfong@fhcrc.org}, Xuesong Yu \email{xyu@scharp.org}.}
 
 \references{
-Fong, Y., Yu, X., Sebestyen, K., Gilbert, P. and Self, S. (2013) nCal: a R package for nonlinear calibration. Submitted.
+Fong, Y., Yu, X., Sebestyen, K., Gilbert, P. and Self, S. (2013) nCal: a R package for nonlinear calibration. Bioinformatics
+Fong, Y., Yu, X. (2014) Transformation Model Choice in Nonlinear Regression Analysis of Serial Dilution Assays, submitted
 }
 
 \examples{
@@ -182,6 +194,10 @@ dat.unk=rbind(
 dat=rbind(dat.std, dat.unk)
 
 
+\dontrun{
+# to save some time
+
+
 # does drm fit
 out = ncal(log(fi)~expected_conc, dat, return.fits = TRUE, plot.se.profile=TRUE) 
 fit=attr(out, "fits")[[1]]
@@ -189,7 +205,7 @@ fit=attr(out, "fits")[[1]]
 # does jags fit and collect 1e5 posterior samples, it may be better to set n.iter higher
 out.norm = ncal(log(fi)~expected_conc, dat, bcrm.fit=TRUE, bcrm.model="norm",
     return.fits = TRUE, plot.se.profile=TRUE,
-    control.jags=list(n.iter=1e5), n.iter=1e4, verbose=FALSE)
+    control.jags=list(n.iter=1e4), verbose=FALSE)
 fit.norm=attr(out.norm, "fits")
 
 # compare drm fit with bcrm fit
@@ -208,12 +224,7 @@ out = ncal (paste(system.file(package="nCal")[1],'/misc/02-14A22-IgA-Biotin-tiny
 fit=attr(out, "fits")[[1]]
 getConc(fit, c(5,6))
 
-
-# weighting
-out.w = ncal(fi~expected_conc, dat, return.fits = TRUE, plot.se.profile=TRUE, 
-    weighting=TRUE, pow.weight=-1)
-fit.w=attr(out.w, "fits")[[1]]
-
+}
 
 #end=Sys.time();print(end-begin)
 

@@ -1,192 +1,134 @@
+# if this file is sourced during development, also need to source ssfct.R
+
+# it seems that drm expects weights to be a global variable, not formula, not local variable, although it evaluates weights in parent.frame(), so I don't really understand
+# r cmd check does not allow global variables 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("drm.weights"))
 
-
-# robust="mean"; fit.4pl=FALSE; force.fit=F; weighting=F # default
-drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, force.fit=TRUE, weighting=FALSE, coln.weight=NULL, pow.weight=1, verbose=FALSE) {
+# robust="mean"; fit.4pl=FALSE; weighting=FALSE # default
+drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, w=NULL, gof.threshold=0.2, verbose=FALSE, bcVal = NULL, bcAdd = 0) {
     
-    #require(drc)
-    
-    # drm 5pl is sensitive to the ordering of rows
-    data=data[order(data$expected_conc),]
-    
-    gof.threshold=.2 # .2 is empirically determined
-    control=drmc(maxIt=5000, method="BFGS", relTol=1e-7, trace=FALSE)
-    
-    if (weighting) {
-        if (is.null(coln.weight)) outcome.coln=all.vars(formula)[1] else outcome.coln=coln.weight
-        eval(eval(substitute(expression( drm.weights <<- data[,outcome.coln]^pow.weight ))))     
-    } else {
-        eval(eval(substitute(expression( drm.weights <<- rep(1,nrow(data)) ))))     
-    }
-
-    gofs=rep(Inf, 3)
+    force.fit=TRUE
+    # try three self starting functions
+    gofs=rep(NA, 3)
     fits=list()
+    outcome.coln=all.vars(formula)[1]
+    predictor.coln=all.vars(formula)[2]
     
+    if (is.null(w)) {
+        # using assign function with inherits, instead of <<-, avoids a note during r cmd check. 
+        # using assign function with .GlobalEnv still gets a not by r cmd check
+        # if rcmdcheck notes the following, it will be reall hard to find a way around
+        assign("drm.weights", rep(1,nrow(data)), inherits=TRUE)
+        #drm.weights <<- rep(1,nrow(data))
+    } else {
+        stopifnot(length(w)==nrow(data))
+        assign("drm.weights", w, inherits=TRUE)
+        #drm.weights <<- w
+        stopifnot(length(drm.weights)==nrow(data))
+    }
+        
+    control=drmc(maxIt=500, method="BFGS", relTol=1e-7, trace=FALSE)
+
+    bad.se=TRUE 
     if (!fit.4pl){
         # try default ss.fct first so that the results will match drm call in most cases
-        fit1= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(), control=control, weights=drm.weights), silent=FALSE)    
+        fit1= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose>=2)    
         
         if (!inherits(fit1, "try-error")) {
             vcov.=vcov(fit1)
             if(is.null(vcov.)) {
-                bad.se = T 
-            } else if(all(is.na(diag(vcov.)))) {
-                bad.se=T
+                bad.se = TRUE 
+            } else if(any(is.na(diag(vcov.)))) {
+                bad.se=TRUE
             } else if (any(diag(vcov.)<0)) {
-                bad.se=T
+                bad.se=TRUE
             } else {
-                bad.se=F
+                bad.se=FALSE
             }            
-            if (bad.se) gof1=Inf
-            else gof1 = gof.cost( resid(fit1) ) 
+            gof1 = 1-neill.test(fit1,display=FALSE) # 1-p val, when display is FALSE, F-value is not returned
         } else {
             gof1=Inf
         }
         gofs[1]=gof1
         fits[[1]]=fit1
         
-        if (gof1>gof.threshold) {
+        if (1-gof1<gof.threshold) {
             
-            if (verbose) print("default ssfct fails, try ssfct.drc.1.5.2")
-            fit2= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ssfct.drc.1.5.2), control=control, weights=drm.weights), silent=FALSE)
+            if (verbose) cat("drm.fit: default ssfct fails, try additional starting functions.  ")
+            fit2= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ssfct.drc.1.5.2), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose>=2)
             
             if (!inherits(fit2, "try-error")) {
                 vcov.=vcov(fit2)
                 if(is.null(vcov.)) {
-                    bad.se = T 
+                    bad.se = TRUE 
                 } else if(all(is.na(diag(vcov.)))) {
-                    bad.se=T
+                    bad.se=TRUE
                 } else if (any(diag(vcov.)<0)) {
-                    bad.se=T
+                    bad.se=TRUE
                 } else {
-                    bad.se=F
+                    bad.se=FALSE
                 }            
-                if (bad.se) gof2=Inf
-                else gof2 = gof.cost( resid(fit2) ) 
+                gof2 = 1-neill.test(fit2,display=FALSE)
             } else gof2=Inf
             gofs[2]=gof2
             fits[[2]]=fit2
             
-            if (gof2>gof.threshold) {
-                
-                if(verbose) print("ssfct.drc.1.5.2 fails, try ss.fct.via.LL4")
-                fit3 = try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ss.fct.via.LL4), control=control, weights=drm.weights), silent=FALSE)
-                
-                if (!inherits(fit3, "try-error")) {
-                    vcov.=vcov(fit3)
-                    if(is.null(vcov.)) {
-                        bad.se = T 
-                    } else if(all(is.na(diag(vcov.)))) {
-                        bad.se=T
-                    } else if (any(diag(vcov.)<0)) {
-                        bad.se=T
-                    } else {
-                        bad.se=F
-                    }            
-                    if (bad.se) gof3=Inf
-                    else gof3 = gof.cost( resid(fit3) ) 
-                } else gof3=Inf
-                gofs[3]=gof3
-                fits[[3]]=fit3
-                if (gof3>gof.threshold) print ("drm.fit: residuals larger than ususal in "%+%data[1,"assay_id"]%+%", "%+%data[1,"analyte"], quote=FALSE)
-                else {
-                    
-                }
-                
-            } else {
-                
-            }
-        
+            fit3 = try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ss.fct.via.LL4), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose>=2)
+            
+            if (!inherits(fit3, "try-error")) {
+                vcov.=vcov(fit3)
+                if(is.null(vcov.)) {
+                    bad.se = TRUE 
+                } else if(all(is.na(diag(vcov.)))) {
+                    bad.se=TRUE
+                } else if (any(diag(vcov.)<0)) {
+                    bad.se=TRUE
+                } else {
+                    bad.se=FALSE
+                }            
+                gof3 = 1-neill.test(fit3,display=FALSE)
+            } else gof3=Inf
+            gofs[3]=gof3
+            fits[[3]]=fit3
+                        
         } 
         
         fit=fits[[which.min(gofs)]]
         
     } else {
-        fit= try(drm(formula=formula, data=data, robust=robust, fct = LL.4(), control=control, weights=drm.weights), silent=FALSE)  
+        fit= try(drm(formula=formula, data=data, robust=robust, fct = LL.4(), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose>=2)  
         if (!inherits(fit, "try-error")) {
             vcov.=vcov(fit)
             if(is.null(vcov.)) {
-                bad.se = T 
+                bad.se = TRUE 
             } else if(all(is.na(diag(vcov.)))) {
-                bad.se=T
+                bad.se=TRUE
             } else if (any(diag(vcov.)<0)) {
-                bad.se=T
+                bad.se=TRUE
             } else {
-                bad.se=F
+                bad.se=FALSE
             }            
             if (bad.se) gof3=Inf
-            else gof3 = gof.cost( resid(fit) ) 
+            else gof3 = 1-neill.test(fit,display=FALSE)
         } else gof3=Inf
         gofs[1]=gof3
         
     }
     
-    fit$bad.se=bad.se
-    if (force.fit) {
-        if (class(fit)=="try-error") return (NULL) 
-        else {
-            if (verbose) print("return forced fit")
-            names(fit$coefficients)=substr(names(fit$coefficients), 1,1) # For now, it seems better to do this
-            return (fit)
-        }
+    if (verbose) myprint(gofs)
+    if (class(fit)[1]=="try-error") {
+        if (verbose) cat("return null fit\n")
+        return (NULL)
     } else {
-        if (min(gofs)>gof.threshold) {
-            print ("residuals larger than ususal")
-            return (NULL)
-        }
-        else return (fit)
+        fit$bad.se=bad.se
+        names(fit$coefficients)=substr(names(fit$coefficients), 1,1) # For now, it seems better to do this
+        return (fit)
     }
-}
-
-
-# self start functions
-ssfct.drc.1.5.2 <- function (dataFra) {
-    x <- dataFra[, 1]
-    y <- dataFra[, 2]
-    startVal <- rep(0, 5)
-    startVal[3] <- max(y) + 0.001
-    startVal[2] <- min(y) - 0.001
-    startVal[5] <- 1
-    indexT2 <- (x > 0)
-    x2 <- x[indexT2]
-    y2 <- y[indexT2]
-    startVal[c(1, 4)] <- find.be2(x2, y2, startVal[2] - 0.001, 
-        startVal[3])
-#    print (startVal)
-    return(startVal)
-}
-find.be2 <- function(x, y, c, d)
-{
-#    myprint (x," ")
-#    myprint (y)
-#    myprint (c)
-#    myprint (d)
-    logitTrans <- log((d - y)/(y - c))  
     
-    lmFit <- lm(logitTrans ~ log(x))
-#        eVal <- exp((-coef(logitFit)[1]/coef(logitFit)[2]))
-#        bVal <- coef(logitFit)[2]
-    
-    coefVec <- coef(lmFit)
-    bVal <- coefVec[2]        
-    eVal <- exp(-coefVec[1]/bVal)    
-    
-    return(as.vector(c(bVal, eVal)))
-}
-ss.fct.via.LL4= function (dataFra) {
-    x <- dataFra[, 1]
-    y <- dataFra[, 2]
-    fit0= drm(y ~ x, fct = LL.4(), weights= y^-.5)
-    start=c(coef(fit0), 1)
-    return (start)
 }
 
-# sometimes when y is MFI, the lower asymptote can be below 0, after taking log, we get NaN
-gof.cost=function (x) {
-    x=ifelse (is.na(x), 10, x)
-    mean(abs(x))
-} 
 
-getVarComponent.drc=function (fit) {
-    summary(fit)$resVar
+
+getVarComponent.drc=function (object,...) {
+    summary(object)$resVar
 }

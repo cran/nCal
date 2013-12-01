@@ -125,7 +125,7 @@ In a real application, multiple plates often need to be run in a stretch of days
 <<Example2bcrm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE>>=
 
 dat=subset(hier.model.ex.2, assay_id %in% paste("Run",1:4))
-fit.bcrm=bcrm(log(fi)~expected_conc, dat, error.model="gh_t4", informative.prior=T, n.iter=1e4)
+fit.bcrm=bcrm(log(fi)~expected_conc, dat, error.model="t4", prior="cytokine", n.iter=1e4)
 @
 
 We will extract the curve fit for each assay from \textit{fit.bcrm} using \textit{get.single.fit} and plot it together with the robust \textit{drm} fit. In addition, we will plot curves fitted using one of the popular commercial softwares, Graphpad Prism, with robust option.
@@ -187,21 +187,21 @@ $\sigma^{-2}\sim Gamma\left(  \text{shape=}2,\text{rate=}0.06\right)  $.
 
 Q: How do I install nCal?
 A: Please follow the following steps. Step 4 is necessary for running nCal GUI.
-1.	Install R. R can be downloaded from http://cran.r-project.org/ 
-2.	Run R. On Windows, this can be done by double-clicking on the R icon.
-3.	Install the nCal package. At the R console, type
+1.  Install R. R can be downloaded from http://cran.r-project.org/ 
+2.  Run R. On Windows, this can be done by double-clicking on the R icon.
+3.  Install the nCal package. At the R console, type
 > install.packages ("nCal")
 and press enter.
-4.	Install the gWidgetstcltk package. At the R console, type
+4.  Install the gWidgetstcltk package. At the R console, type
 > install.packages ("gWidgetstcltk")
 and press enter. 
 
 Q: How do I launch the nCal GUI?
 A: The nCal GUI is launched from within R. Please follow the following steps.
-1.	Run R. On Windows, this can be done by by double-clicking on the R icon.
-2.	At the R console, load the nCal library by
+1.  Run R. On Windows, this can be done by by double-clicking on the R icon.
+2.  At the R console, load the nCal library by
 > library (nCal)
-3.	run nCal GUI by
+3.  run nCal GUI by
 > ncalGUI()
 
 Q: What other programs does nCal need to be able to import Luminex raw output?
@@ -220,28 +220,28 @@ Q: Help on GUI
 A: The GUI (screenshot: http://research.fhcrc.org/content/dam/stripe/youyiFong/files/gui.pdf) 
 is divided into four sections. 
 Input
-*	You can select a file containing the input data using the browse button. 
+*   You can select a file containing the input data using the browse button. 
 The nCal package comes with an example Luminex raw output xls file, 02-14A22-IgA-Biotin-tiny,
 and it is located at the R_installation_directory/library/nCal/misc folder. 
 You can use this file to test the GUI.
-*	The input file can be in one of three different formats.
-*	The Response variable field allows users to enter the name of the response variable, 
+*   The input file can be in one of three different formats.
+*   The Response variable field allows users to enter the name of the response variable, 
 and it defaults to log(fi). 
-*	The Concentration/dose variable field allows users to enter the name of the 
+*   The Concentration/dose variable field allows users to enter the name of the 
 concentration or dose variable, and it defaults to expected_conc.
 Output 
-*	The Estimated concentrations field allows users to enter the name of the file 
+*   The Estimated concentrations field allows users to enter the name of the file 
 to save the estimated concentrations, and it defaults to estimated_concentrations.csv. 
 The browse button next to it allows users to choose a folder to save the file in.
-*	The Calibration plots field allows users to enter the name of the file to 
+*   The Calibration plots field allows users to enter the name of the file to 
 save the calibration plots, and it defaults to Calibration_plots.pdf. 
 The browse button next to it allows users to choose a folder to save the file in.
 Curve fitting method
-*	Users can choose between two curve fitting methods.
+*   Users can choose between two curve fitting methods.
 The last section allows users to use the last fitted curve to estimate concentrations 
 for any responses entered by users. 
-*	More than one response can be separated by space or comma, e.g. 5.1, 6.3
-*	The Apply button becomes activated when there has been a fitted curve. 
+*   More than one response can be separated by space or comma, e.g. 5.1, 6.3
+*   The Apply button becomes activated when there has been a fitted curve. 
 When the Apply button is clicked, a new window pops up. In the window is a table, 
 each row of which corresponds to one entered response.
 

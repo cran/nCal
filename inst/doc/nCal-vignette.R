@@ -63,7 +63,7 @@ getConc(fit.bcrm, c(5.7,6.3))
 ## ----Example2bcrm, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE----
 
 dat=subset(hier.model.ex.2, assay_id %in% paste("Run",1:4))
-fit.bcrm=bcrm(log(fi)~expected_conc, dat, error.model="gh_t4", informative.prior=T, n.iter=1e4)
+fit.bcrm=bcrm(log(fi)~expected_conc, dat, error.model="t4", prior="cytokine", n.iter=1e4)
 
 
 ## ----Example2, include=TRUE, cache=FALSE, tidy=TRUE, echo=TRUE, eval=TRUE, fig.width=8, fig.height=8.5, fig.cap="Comparing bcrm fit with drm and Prism fits."----

@@ -114,9 +114,19 @@
 	concentration that is outside the range of standard concentrations
 
 
-2013-11-07 make fi 1 in ncal if fi is 0 or negative
-2013-11-29 use a new copy of youtil.R that does not have getVarComponent.nlme
-to avoid a warning after a drc update
+2013-11-07 Youyi Fong
+	* make fi 1 in ncal if fi is 0 or negative
 
+2013-11-29 Youyi Fong
+	* use a new copy of youtil.R that does not have getVarComponent.nlme to avoid a warning after a drc update
 
+2014-03-31 Youyi Fong
+	* change } else if(all(is.na(diag(vcov.)))) { to any at Doug Lowe's
+	suggestion
 
+2014-04-23 Xuesong Yu
+	* add weighted ls implementation
+
+2014-10-31 Youyi Fong
+	* remove plot.crm. need to learn callNextMethod to use it, b/c it does not
+	allow plot.drc or drc:::plot.drc

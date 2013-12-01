@@ -1,6 +1,8 @@
 ############################################################################
 # parameterization 3: b,c,d,e,f -> b,c,d,g,h, where g is the inflection point, and h is the hill slope at the inflection point
 
+
+
 # vectorized functions for converting parameters between parameterizations
 # param can be a vector or a matrix where each row is a parameter value
 cla2gh=function(param){
@@ -92,6 +94,36 @@ cla2ed50=function(param){
         if (!is.4pl) res=c(res, f) 
     } else {
         res=cbind(b,c,d,logtao=unname(log(tao)))
+        if (!is.4pl) res=cbind(res, f) 
+    }
+    res
+}
+
+cla2ed50b=function(param){
+    is.v=FALSE
+    if(is.vector(param)) {
+        is.v=TRUE
+        tmp=substr(names(param),1,1)
+        param=matrix(param, nrow=1)
+        colnames(param)=tmp
+    }else colnames(param)=substr(colnames(param),1,1)
+    
+    if(ncol(param)==4) {
+        is.4pl=TRUE
+        param=cbind(param, "f"=rep(1,nrow(param)))
+    } else {
+        is.4pl=FALSE
+    }
+    
+    b=param[,"b"]; c=param[,"c"]; d=param[,"d"]; e=param[,"e"]; f=param[,"f"]    
+    tao=e*(2^{1/f}-1)^{1/b}
+    h=-b*(d-c)/(1+(1/f))^(f+1)
+    names(h)="h"
+    if(is.v) {
+        res=c(c,d,logtao=unname(log(tao)),h)
+        if (!is.4pl) res=c(res, f) 
+    } else {
+        res=cbind(c,d,logtao=unname(log(tao)),h)
         if (!is.4pl) res=cbind(res, f) 
     }
     res
@@ -293,7 +325,9 @@ vpl3.deriv.func = function(param){
 }
 
 # ylim=NULL; col=NULL; lty=NULL; lwd=1; plot.legend=FALSE; add=FALSE; legend=NULL; main=NULL # default 
-plot5PL=function(param, xlim, ylim=NULL, col=NULL, lty=NULL, lwd=1, plot.legend=FALSE, add=FALSE, legend=NULL, main=NULL, x.exp=FALSE, xlab=NULL, ylab=NULL, xaxt="s") {
+lines5PL=function(param, xlim, ...) plot5PL(param, xlim, add=TRUE, ...)
+plot5PL=function(param, xlim, ylim=NULL, col=NULL, lty=NULL, lwd=1, plot.legend=FALSE, add=FALSE, legend=NULL, main=NULL, xlab=NULL, ylab=NULL, xaxt="s", 
+    yaxis.log.scale=FALSE, expy=FALSE, logy=FALSE) {
     
     if (!is.matrix(param) & !is.vector(param)) stop("param has to be vector or matrix")
     if(is.vector(param)) {
@@ -302,20 +336,24 @@ plot5PL=function(param, xlim, ylim=NULL, col=NULL, lty=NULL, lwd=1, plot.legend=
         dimnames(param)[[2]]=tmp
     }
     
-    t.1=seq(xlim[1], xlim[2], length=1000)
+    tlim=log(xlim)
+    t.1=seq(tlim[1], tlim[2], length=1000)
     if (is.null(ylim)) ylim=range(apply(param,1,function(x) FivePL.t(t.1, x)))
+    if (expy) ylim=exp(ylim)
+    if (logy) ylim=log(ylim)
     if (!add) {
-        if (!x.exp) {
-            plot(1,1,xlim=xlim, ylim=ylim, type="n", xlab=ifelse(is.null(xlab),"t",xlab), ylab=ifelse(is.null(ylab),"y",ylab), main=main, xaxt=xaxt)
-        } else {
-            plot(1,1,xlim=xlim, ylim=ylim, type="n", xlab=ifelse(is.null(xlab),"x",xlab), ylab=ifelse(is.null(ylab),"y",ylab), main=main, xaxt="n")
-            axis(side=1, at=seq(xlim[1], xlim[2], length=10), labels=round(exp(seq(xlim[1], xlim[2], length=10)),1))
-        }
+        plot(1,1,xlim=xlim, ylim=ylim, type="n", xlab=ifelse(is.null(xlab),"t",xlab), ylab=ifelse(is.null(ylab),"y",ylab), main=main, xaxt=xaxt, log=ifelse(yaxis.log.scale,"xy","x"))
+#        plot(1,1,xlim=tlim, ylim=ylim, type="n", xlab=ifelse(is.null(xlab),"x",xlab), ylab=ifelse(is.null(ylab),"y",ylab), main=main, xaxt="n", log=log)
+#        axis(side=1, at=seq(xlim[1], xlim[2], length=10), labels=round(exp(seq(xlim[1], xlim[2], length=10)),1))
     }
     if (is.null(col)) col=1:nrow(param) else if(length(col)==1) col=rep(col, nrow(param))
     if (is.null(lty)) lty=rep(1, nrow(param))
     for (i in 1:nrow(param)) {
-        lines(t.1, FivePL.t(t.1, param[i,]), col=col[i], lty=lty[i], lwd=lwd)
+        yy=FivePL.t(t.1, param[i,])
+        if (expy) yy=exp(yy)
+        if (logy) yy=log(yy)
+        lines(exp(t.1), yy, col=col[i], lty=lty[i], lwd=lwd)
+        #lines(t.1, yy, col=col[i], lty=lty[i], lwd=lwd)
     }
     
     if(is.null(legend)) legend=1:nrow(param)

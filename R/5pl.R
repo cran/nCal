@@ -15,12 +15,13 @@ get.curve.param.list=function(param){
         stop ("param is not matrix or vector")
     }
     
-    if (!"c" %in% colnames(param)) stop("param does not have d")
-    if (!"d" %in% colnames(param)) stop("param does not have d")
-    
     tmp=substr(colnames(param),1,1)
     tmp["logtao"==colnames(param)]="logtao" # logtao can not be shortened to l
     colnames(param)=tmp
+
+    if (!"c" %in% colnames(param)) stop("param does not have d")
+    if (!"d" %in% colnames(param)) stop("param does not have d")
+    
     if("b" %in% tmp & "e" %in% tmp) { 
         # classical parameterization
     } else if ("g" %in% tmp & "h" %in% tmp) {
@@ -214,10 +215,16 @@ treat.out.of.bound=function(y, p, t.range){
 
 ###########################################################################################################
 # simulate one curve, return FI, a vectorized function
-simulate1curve=function(param, t, sd.e=0.1) {
-    .mean=FivePL.t(t, param)
-    y = rnorm (n=length(.mean), mean=.mean, sd=sd.e)
-    exp(y)
+simulate1curve=function(param, t, sd.e=0.1, expy=TRUE, gamma=0) {
+    if (expy) {
+        .mean=FivePL.t(t, param)
+        y = rnorm (n=length(.mean), mean=.mean, sd=sd.e*.mean^(gamma/2))
+        exp(y) 
+    } else {
+        .mean=(FivePL.t(t, param)) 
+        y = rnorm (n=length(.mean), mean=.mean, sd=sd.e*.mean^(gamma/2))
+        y
+    }
 }
 
 

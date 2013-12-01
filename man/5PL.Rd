@@ -13,6 +13,7 @@
 \alias{cla2gh}
 \alias{gh2cla}
 \alias{cla2ed50}
+\alias{cla2ed50b}
 \alias{ed502cla}
 \alias{ed50b2cla}
 \alias{get.curve.param.list}
@@ -44,10 +45,11 @@ FourPL.t.func (param)
 cla2gh (param)
 gh2cla (param)
 cla2ed50 (param)
+cla2ed50b (param)
 ed502cla (param)
 ed50b2cla (param)
 get.curve.param.list (param)
-simulate1curve (param, t, sd.e=0.1) 
+simulate1curve (param, t, sd.e=0.1, expy=TRUE, gamma=0) 
 vpl1.deriv (x,param)
 vpl1.deriv.func (param)
 vpl2.deriv (x,param)
@@ -65,11 +67,19 @@ ED5PL (param, tao)
   \item{y}{numeric vector. Response.}
   \item{sd.e}{sd.e}
   \item{tao}{vector of numbers or single number. Effective doses. Vectorized for this argument.}
+  \item{expy}{Boolean. Controls whether to exponentiate y}
+  \item{gamma}{power variance function parameter}
 }
 \details{
 FivePL.t and other functions are vectorized for the x and the y arguments.
 
-Four parameterizations are implemented. Classical: b,c,d,e,f; gh: c,d,f,g,h; ED50: c,d,f,b,tao(ED50); ED50b: c,d,f,h,tao(ED50)
+Four parameterizations are implemented. 
+Classical: b,c,d,e,f
+gh: c,d,f,g,h
+ED50: c,d,f,b,tao(ED50)
+ED50b: c,d,f,h,tao(ED50). This is called tao-h in Cumberland et al. (2014)
+
+
 }
 \author{ Youyi Fong \email{yfong@fhcrc.org}, Xuesong Yu, William N. Cumberland }
 \examples{
