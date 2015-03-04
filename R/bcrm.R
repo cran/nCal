@@ -27,9 +27,10 @@ bcrm = function (formula, data,
     # parameter checking and processing
     if (verbose) cat("check parameter\n")
     
-    # the following line cannot be commented out, otherwise, won't compile, b/c
-    load.rjags=try(require(rjags))
-    if (!load.rjags) stop("rjags does not load successfully. Is JAGS installed?")
+    # the following line is important for rjags::coda.samples to work
+    if(!"package:coda" %in% search()) attachNamespace("coda")
+
+    #if (!require(rjags)) stop("rjags does not load successfully. Is JAGS installed?")
     
     if (mean.model=="4PL") {
         if (parameterization!="gh" | !error.model %in% c("norm","t4")) stop("When mean.model is 4PL, it has to be gh and norm or t4.")

@@ -35,7 +35,7 @@ ncalGUI <- function(verbose = FALSE){
 #        print(environment())
 #    }
     
-    require(gWidgetstcltk) || stop('Please install the gWidgetstcltk package')
+    #require(gWidgetstcltk) || stop('Please install the gWidgetstcltk package')
     options(guiToolkit = "tcltk")
     
 
