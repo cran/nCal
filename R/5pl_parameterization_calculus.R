@@ -327,7 +327,7 @@ vpl3.deriv.func = function(param){
 # ylim=NULL; col=NULL; lty=NULL; lwd=1; plot.legend=FALSE; add=FALSE; legend=NULL; main=NULL # default 
 lines5PL=function(param, xlim, ...) plot5PL(param, xlim, add=TRUE, ...)
 plot5PL=function(param, xlim, ylim=NULL, col=NULL, lty=NULL, lwd=1, plot.legend=FALSE, add=FALSE, legend=NULL, main=NULL, xlab=NULL, ylab=NULL, xaxt="s", 
-    yaxis.log.scale=FALSE, expy=FALSE, logy=FALSE) {
+    yaxis.log.scale=FALSE, expy=FALSE, logy=FALSE, ...) {
     
     if (!is.matrix(param) & !is.vector(param)) stop("param has to be vector or matrix")
     if(is.vector(param)) {
@@ -342,7 +342,7 @@ plot5PL=function(param, xlim, ylim=NULL, col=NULL, lty=NULL, lwd=1, plot.legend=
     if (expy) ylim=exp(ylim)
     if (logy) ylim=log(ylim)
     if (!add) {
-        plot(1,1,xlim=xlim, ylim=ylim, type="n", xlab=ifelse(is.null(xlab),"t",xlab), ylab=ifelse(is.null(ylab),"y",ylab), main=main, xaxt=xaxt, log=ifelse(yaxis.log.scale,"xy","x"))
+        plot(1,1,xlim=xlim, ylim=ylim, type="n", xlab=ifelse(is.null(xlab),"t",xlab), ylab=ifelse(is.null(ylab),"y",ylab), main=main, xaxt=xaxt, log=ifelse(yaxis.log.scale,"xy","x"), ...)
 #        plot(1,1,xlim=tlim, ylim=ylim, type="n", xlab=ifelse(is.null(xlab),"x",xlab), ylab=ifelse(is.null(ylab),"y",ylab), main=main, xaxt="n", log=log)
 #        axis(side=1, at=seq(xlim[1], xlim[2], length=10), labels=round(exp(seq(xlim[1], xlim[2], length=10)),1))
     }

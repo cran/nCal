@@ -91,7 +91,7 @@ The curve fit object is not returned by default, but can be returned as an attri
 fit.drm=attr(res.drm, "fits")[[1]]
 @
 
-\textit{ncal} also creates a four-panel plot (Figure~\ref{fig:Example1drm}) for each assay by default. The upper left panel shows the standard samples data and the fitted curve. The upper right panel is similar to the upper left panel, but adds a set of points representing the samples of interest. The lower left panel shows the estimated variance of the estimated concentrations as functions of the estimated concentration \citep[][]{fong2013nonlinear,cumberland2013nonlinear}. The lower right panel shows the coefficient of variation (CV) as a function of the estimated concentration. The limits of quantification (LOQ) are defined as the estimated concentrations at which the percent CV equals 20.
+\textit{ncal} also creates a four-panel plot (Figure~\ref{fig:Example1drm}) for each assay by default. The upper left panel shows the standard samples data and the fitted curve. The upper right panel is similar to the upper left panel, but adds a set of points representing the samples of interest. The lower left panel shows the estimated variance of the estimated concentrations as functions of the estimated concentration \citep[][]{fong2013nonlinear,cumberland2015nonlinear}. The lower right panel shows the coefficient of variation (CV) as a function of the estimated concentration. The limits of quantification (LOQ) are defined as the estimated concentrations at which the percent CV equals 20.
 
 
 To use \textit{bcrm} to fit a robust Bayesian hierarchical model \citep[][]{fong2013nonlinear}, simply pass \textit{bcrm.fit=TRUE} to \textit{ncal}. (Proper installation of JAGS and the R package rjags are required.)

@@ -3,6 +3,7 @@
 \alias{deviance.crm}
 \alias{lines.crm}
 \alias{coef.crm}
+\alias{print.crm}
 \title{
 Fit Concentration Response Model
 }
@@ -16,6 +17,7 @@ crm.fit (formula, data, fit.4pl=FALSE, var.model=c("constant","power"),
 
 
 \method{deviance}{crm}(object, ...)
+\method{print}{crm}(x, ..., digits=3)
 \method{lines}{crm}(x, ...)
 \method{coef}{crm}(object, parameterization=c("cla","gh","ed50b","edb50"), ...)
 
@@ -37,6 +39,8 @@ string}
   \item{method}{
 string}
   \item{max.iter}{
+number}
+  \item{digits}{
 number}
   \item{reltol}{
 numeric}
@@ -64,6 +68,7 @@ Fong, Y., Yu, X. (2014) Transformation Model Choice in Nonlinear Regression Anal
 }
 \examples{
 
+\dontrun{
 dat.std=dat.QIL3[dat.QIL3$assay_id=="LMX001",]
 
 # run 3 iter to save time for examples
@@ -79,6 +84,8 @@ fit.3$var.power
 plot(fit.1, log="xy", type="all", lwd=3, pch="*")
 lines(fit.2, expy=TRUE, col=2, lwd=3)
 lines(fit.3, expy=TRUE, col=4, lty=2, lwd=3)
+    
+}
 
 
 }

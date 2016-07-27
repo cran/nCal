@@ -9,7 +9,7 @@
 \usage{
 plot5PL (param, xlim, ylim=NULL, col=NULL, lty=NULL, lwd=1, plot.legend=FALSE,
     add=FALSE, legend=NULL, main=NULL, xlab=NULL, ylab=NULL, xaxt="s", 
-    yaxis.log.scale=FALSE, expy=FALSE, logy=FALSE) 
+    yaxis.log.scale=FALSE, expy=FALSE, logy=FALSE, ...) 
 lines5PL (param, xlim, ...) 
 
 }

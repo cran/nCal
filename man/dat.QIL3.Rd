@@ -18,6 +18,10 @@ An example for hierarchical modeling used in Fong, Wakefield, De Rosa, Frahm (20
     \item{\code{dilution}}{a numeric vector. The dilution factor of a sample.}
     \item{\code{expected_conc}}{a numeric vector. The expected concentrations of a sample.}
     \item{\code{fi}}{a numeric vector. Fluoresence intensity readout.}
+    \item{\code{ptid}}{a integer vector. Participant ID.}
+    \item{\code{sample_id}}{a Boolean vector. All NA.}
+    \item{\code{thawdt}}{a character vector. All empty string}
+    \item{\code{visit}}{a integer vector. All NA.}
     \item{\code{replicate}}{a numeric vector. Techinical replicate identifier.}
   }
 }

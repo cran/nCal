@@ -24,8 +24,19 @@ S3method(ncal,character)
 S3method(ncal,formula)
 S3method(plot,bcrm)
 S3method(print,bcrm)
+S3method(print,crm)
 S3method(vcov,bcrm)
 
 
 import(drc, gWidgets, kyotil)
 importFrom(gdata, xls2sep, sheetNames)
+
+  importFrom("grDevices", "dev.off")
+  importFrom("graphics", "abline", "legend", "lines", "par", "plot",
+             "points", "title")
+  importFrom("stats", "aggregate", "as.formula", "coef", "cov",
+             "density", "fitted", "integrate", "lm", "median",
+             "model.frame", "na.omit", "optim", "qt", "quantile",
+             "resid", "rnorm", "runif", "sd", "splinefun", "uniroot",
+             "var", "vcov")
+  importFrom("utils", "capture.output", "read.csv", "write.csv")
