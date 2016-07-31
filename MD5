@@ -1,5 +1,5 @@
 101b9aa8c2eacc5f33fcc88bf8754b67 *ChangeLog
-6ebd9bf97dc1df34d2679aa6476ba001 *DESCRIPTION
+ef720e5e04a997f815ae1ff3f610a672 *DESCRIPTION
 3760780f435b6d42785682e91263f3d2 *NAMESPACE
 5914182084b7d8104d753ae872a45bd1 *R/5pl.R
 9be91306362aea7eb6e2bebeede5310e *R/5pl_parameterization_calculus.R
@@ -23,7 +23,7 @@ da1b4e004a40024c93a52077cda69f8e *data/hierarchical_modeling_example_2.rda
 d8c2daa4e93f65228d7f79baefb3fc2e *inst/doc/desktop.ini
 ab925dac1fde4f20f8dbd8ba6d0631b3 *inst/doc/nCal-vignette.R
 09f00f2ec08fd6f8e6b71ac10e475642 *inst/doc/nCal-vignette.Rnw
-3cb230d85fb9f1f4dc66e7389e69348b *inst/doc/nCal-vignette.pdf
+fc01445e5fc3cf91721ddf28344eb15b *inst/doc/nCal-vignette.pdf
 a68efef3fcbcd22c16b9be26c4fb72c7 *inst/jags_script/classical_lar1.jags
 3e6258b723e855bc86f23728dd8c2ab1 *inst/jags_script/classical_mixnorm.jags
 3cfa043e0003fa60f736437298d52c0d *inst/jags_script/classical_norm.jags
