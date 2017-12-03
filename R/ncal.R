@@ -50,8 +50,9 @@ ncal.formula = function (formula, data,
     
     if (plot.se.profile) find.LOQ=T
     
+    
     if (log.transform) {
-        if (any(data[[outcome.coln]]<=0)) warning(outcome.coln%+%" var cannot be 0 or less, will set to 1")
+        if (any(data[[outcome.coln]]<=0)) warning(outcome.coln%+%" var cannot be 0 or less, will set to 1. Alternatively, there may be missing outcome")
         data[[outcome.coln]][data[[outcome.coln]]<=0]=1
     }
                     
@@ -90,6 +91,7 @@ ncal.formula = function (formula, data,
     out=data.frame()
     fits=list()
     for (a in ana) {
+        if (verbose) myprint(a)    
         
         # get fits
         if (bcrm.fit) {
@@ -102,10 +104,12 @@ ncal.formula = function (formula, data,
         } 
         
         for (p in assays) {
-            if (verbose) myprint(a)    
+            if (verbose) myprint(p)    
             dat.a.p=data[data$assay_id==p & data$analyte==a,]
+            #str(dat.a.p)
             if (nrow(dat.a.p)==0) next    
             dat.std= dat.a.p[dat.a.p$well_role=="Standard",] 
+            #str(dat.std)
             if (nrow(dat.std)==0) next
             
             std.low =log(min (dat.std[[predictor.coln]]))

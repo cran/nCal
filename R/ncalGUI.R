@@ -139,7 +139,7 @@ ncalGUI <- function(verbose = FALSE){
             svalue(state$handlers$sb) <- c("No models were found, please fit a model first.")
             enabled(state$handlers$sb) <- FALSE 
             dispose(state$handlers$data.getConc)            
-            return
+            return(1)
         }
         ncal.fit <- attr(ncal.fit,"fits")[[1]]
 
@@ -156,7 +156,7 @@ ncalGUI <- function(verbose = FALSE){
             svalue(state$handlers$sb) <- ncal.pred
             enabled(state$handlers$sb) <- FALSE 
             #dispose(state$handlers$data.getConc)           
-            return
+            return(1)
         }
 
         
@@ -170,7 +170,7 @@ ncalGUI <- function(verbose = FALSE){
         
         #dispose(state$handlers$data.getConc) #clears text in gtext()
         assign("state",state,envir = h$action) #save state change
-        return
+        return(1)
     }
     
 

@@ -31,9 +31,11 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, w=NULL, gof.thres
 
     bad.se=TRUE 
     if (!fit.4pl){
+
         # try default ss.fct first so that the results will match drm call in most cases
-        fit1= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose>=2)    
-        
+capture.output({
+        fit1= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=F)    
+}, type="message")
         if (!inherits(fit1, "try-error")) {
             vcov.=vcov(fit1)
             if(is.null(vcov.)) {
@@ -51,12 +53,13 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, w=NULL, gof.thres
         }
         gofs[1]=gof1
         fits[[1]]=fit1
-        
+    
         if (1-gof1<gof.threshold) {
             
-            if (verbose) cat("drm.fit: default ssfct fails, try additional starting functions.  ")
-            fit2= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ssfct.drc.1.5.2), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose>=2)
-            
+            if (verbose) warning("drm.fit: default ssfct fails, try additional starting functions.  ")
+capture.output({
+            fit2= try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ssfct.drc.1.5.2), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose<=2)
+}, type="message")            
             if (!inherits(fit2, "try-error")) {
                 vcov.=vcov(fit2)
                 if(is.null(vcov.)) {
@@ -73,8 +76,9 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, w=NULL, gof.thres
             gofs[2]=gof2
             fits[[2]]=fit2
             
-            fit3 = try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ss.fct.via.LL4), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose>=2)
-            
+capture.output({
+            fit3 = try(drm(formula=formula, data=data, robust=robust, fct = LL.5(ssfct=ss.fct.via.LL4), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose<=2)
+}, type="message")            
             if (!inherits(fit3, "try-error")) {
                 vcov.=vcov(fit3)
                 if(is.null(vcov.)) {
@@ -96,7 +100,9 @@ drm.fit=function (formula, data, robust="mean", fit.4pl=FALSE, w=NULL, gof.thres
         fit=fits[[which.min(gofs)]]
         
     } else {
-        fit= try(drm(formula=formula, data=data, robust=robust, fct = LL.4(), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose>=2)  
+capture.output({
+        fit= try(drm(formula=formula, data=data, robust=robust, fct = LL.4(), control=control, weights=drm.weights, bcVal=bcVal, bcAdd=bcAdd), silent=verbose<=2)  
+}, type="message")
         if (!inherits(fit, "try-error")) {
             vcov.=vcov(fit)
             if(is.null(vcov.)) {
