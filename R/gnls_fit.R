@@ -25,12 +25,12 @@ gnls.fit=function (formula, data, fit.4pl=FALSE, startVal=NULL, varFun=nlme::var
 
     # g-h parameterization works better than classical in convergence for some datasets, but still has difficulty with a lot of datasets
     if (!fit.4pl){   
-        #eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%+%" ~ c + (d - c)/(1 + exp(b * (log("%+%predictor.coln%+%") - loge)))^f") ))))              
-        #eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%+%" ~ exp(logc) + (exp(logd) - exp(logc))/(1 + exp(-log(f)-h/(exp(logd)-exp(logc))*(1+1/f)^(1+f)*(log("%+%predictor.coln%+%")-g)))^f") ))))              
-        eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%+%" ~ c + (d - c)/(1 + exp(-log(f)-h/(d-c)*(1+1/f)^(1+f)*(log("%+%predictor.coln%+%")-g)))^f") ))))              
+        #eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%.%" ~ c + (d - c)/(1 + exp(b * (log("%.%predictor.coln%.%") - loge)))^f") ))))              
+        #eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%.%" ~ exp(logc) + (exp(logd) - exp(logc))/(1 + exp(-log(f)-h/(exp(logd)-exp(logc))*(1+1/f)^(1+f)*(log("%.%predictor.coln%.%")-g)))^f") ))))              
+        eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%.%" ~ c + (d - c)/(1 + exp(-log(f)-h/(d-c)*(1+1/f)^(1+f)*(log("%.%predictor.coln%.%")-g)))^f") ))))              
     } else {
-        #eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%+%" ~ c + (d - c)/(1 + exp(b * (log("%+%predictor.coln%+%") - loge)))") ))))     
-        eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%+%" ~ c + (d - c)/(1 + exp(-h/(d-c)*4*(log("%+%predictor.coln%+%")-g)))") ))))              
+        #eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%.%" ~ c + (d - c)/(1 + exp(b * (log("%.%predictor.coln%.%") - loge)))") ))))     
+        eval(eval(substitute(expression( form.gnls <<- as.formula(outcome.coln%.%" ~ c + (d - c)/(1 + exp(-h/(d-c)*4*(log("%.%predictor.coln%.%")-g)))") ))))              
     }        
     
     fit= try(nlme::gnls(form.gnls, data=data, start=startVal, control=control, weights=varFun, na.action=na.omit), silent=FALSE)       

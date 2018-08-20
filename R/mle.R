@@ -55,7 +55,7 @@ mle.dr=function (formula, data, start, max.iter=50, reltol=1e-3, fit.4pl=FALSE,
         new.dev=sum( new.g.hat*log(fitte) + log(new.sigmasq.hat) + resi^2/(fitte^new.g.hat*new.sigmasq.hat) )  
         devs = c(devs, new.dev)
         
-        if (verbose) cat("Iter "%+%iterations%+%".", "theta:", new.theta, "g.hat:", new.g.hat, " deviance:", devs[iterations], "\n")
+        if (verbose) cat("Iter "%.%iterations%.%".", "theta:", new.theta, "g.hat:", new.g.hat, " deviance:", devs[iterations], "\n")
         
         # stopping rules
         if (max(abs(1 - new.theta/theta)) < reltol) {

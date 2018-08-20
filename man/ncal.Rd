@@ -86,7 +86,7 @@ ncalGUI (verbose=FALSE)
 
     Certain columns are expected of the input data frame:
     \itemize{
-        \item bead_type     Identifies a type of bead. Beads can be named after the substance that is recognized by the antibody that coats the bead, or they can be named by the protein that coats the bead. 
+        \item analyte		Identifies a type of bead. Beads can be named after the substance that is recognized by the antibody that coats the bead, or they can be named by the protein that coats the bead. 
                             This is also known as analyte or antigen in different contexts. To be retro-compatible, this column can also be named analyte
         \item well_role     Defines the role of a well. This should be from {Standard, Unknown, ...}. Standard wells are used to generate standard curves, and concentrations of the substance in the Unknown well will be estimated
         \item assay_id      Identifies an assay, which is defined to be a collection of Standard and non-Standard wells. Measured fi from the Standard wells are used to create a set of standard curves, one of each bead type.        
@@ -163,7 +163,6 @@ The other is 100 x (standard error of estimated concentration / estimated concen
 
 \references{
 Fong, Y., Yu, X., Sebestyen, K., Gilbert, P. and Self, S. (2013) nCal: a R package for nonlinear calibration. Bioinformatics
-Fong, Y., Yu, X. (2014) Transformation Model Choice in Nonlinear Regression Analysis of Serial Dilution Assays, submitted
 }
 
 \examples{

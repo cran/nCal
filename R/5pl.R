@@ -34,7 +34,7 @@ get.curve.param.list=function(param){
         # ED50 parameterization
         param=ed50b2cla(param) 
     } else {
-        stop("not gh not cla not ED50: "%+%concatList(colnames(param),","))
+        stop("not gh not cla not ED50: "%.%concatList(colnames(param),","))
     }
     
     b=param[,"b"]; c=param[,"c"]; d=param[,"d"]; e=param[,"e"]

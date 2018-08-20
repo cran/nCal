@@ -243,7 +243,7 @@ bcrm = function (formula, data,
         pname=c("c","d","f","g","h") 
     }
     if (error.model=="replicate_re") {
-        trace.var="p"%+% pname
+        trace.var="p"%.% pname
     } else trace.var=pname
     trace.var =c(trace.var,"sigma")
     
@@ -269,7 +269,7 @@ bcrm = function (formula, data,
         # but the first call when R is started always the same
         # if we set n.adapt to 0, performance suffers
         jags.model.1 = try(suppressWarnings(
-            rjags::jags.model(file=system.file(package="nCal")[1]%+%"/jags_script/"%+%parameterization%+%"_"%+%error.model%+%ifelse(mean.model=="4PL","_4pl","")%+%".jags", 
+            rjags::jags.model(file=system.file(package="nCal")[1]%.%"/jags_script/"%.%parameterization%.%"_"%.%error.model%.%ifelse(mean.model=="4PL","_4pl","")%.%".jags", 
                 data=jags.data, inits=jags.inits, 
                 n.chains = 1, n.adapt=n.adapt, quiet=TRUE) 
          ), silent=FALSE)
@@ -374,7 +374,7 @@ bcrm = function (formula, data,
             )
         if (verbose>2) {cat("T[]\n"); print(ind)}
         # cannot do median here, because it is Bernoulli variable
-        data$mixture.indicators=apply(samples.3, 2, mean)["T["%+%ind%+%"]"]
+        data$mixture.indicators=apply(samples.3, 2, mean)["T["%.%ind%.%"]"]
     } 
         
     # summarize Unknown concentrations
@@ -391,22 +391,22 @@ bcrm = function (formula, data,
                 x=samples.5[,i]        
                 quantile(x,0.025) < t.unk.truth[i] & t.unk.truth[i] < quantile(x,0.975)
             })
-            names(fit$t.unk.cp)="sample"%+%1:ncol(samples.5)
+            names(fit$t.unk.cp)="sample"%.%1:ncol(samples.5)
             fit$t.unk.mse = sapply(1:ncol(samples.5), function(i) {
                 x=samples.5[,i]        
                 mean ((x-t.unk.truth[i])**2)
             })
-            names(fit$t.unk.mse)="sample"%+%1:ncol(samples.5)
+            names(fit$t.unk.mse)="sample"%.%1:ncol(samples.5)
             fit$t.unk.perc.bias = sapply(1:ncol(samples.5), function(i) {
                 x=samples.5[,i]        
                 mean ((x-t.unk.truth[i])/t.unk.truth[i]*100)
             })
-            names(fit$t.unk.mse)="sample"%+%1:ncol(samples.5)
+            names(fit$t.unk.mse)="sample"%.%1:ncol(samples.5)
             fit$t.unk.var = sapply(1:ncol(samples.5), function(i) {
                 x=samples.5[,i]        
                 var (x)
             })
-            names(fit$t.unk.mse)="sample"%+%1:ncol(samples.5)
+            names(fit$t.unk.mse)="sample"%.%1:ncol(samples.5)
        }
     }
     

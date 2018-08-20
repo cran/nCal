@@ -43,7 +43,7 @@ ncal.formula = function (formula, data,
     predictor.coln=all.vars(formula)[2]
    
     xlab=ifelse(is.null(xlab),"Concentration",xlab)
-    ylab=ifelse(is.null(ylab),ifelse(log.transform,"log(","")%+%outcome.coln%+%ifelse(log.transform,")",""), ylab)
+    ylab=ifelse(is.null(ylab),ifelse(log.transform,"log(","")%.%outcome.coln%.%ifelse(log.transform,")",""), ylab)
     
     ## somehow not working, replace with some dummy code     
     #ylab=ifelse(is.null(ylab), "dummy label", ylab)
@@ -52,7 +52,7 @@ ncal.formula = function (formula, data,
     
     
     if (log.transform) {
-        if (any(data[[outcome.coln]]<=0)) warning(outcome.coln%+%" var cannot be 0 or less, will set to 1. Alternatively, there may be missing outcome")
+        if (any(data[[outcome.coln]]<=0)) warning(outcome.coln%.%" var cannot be 0 or less, will set to 1. Alternatively, there may be missing outcome")
         data[[outcome.coln]][data[[outcome.coln]]<=0]=1
     }
                     
@@ -119,9 +119,9 @@ ncal.formula = function (formula, data,
             y.high=max(data[[outcome.coln]]); if (log.transform) y.high=log(y.high)
             
             # add columns like fi.avg
-            if (!outcome.coln%+%".avg" %in% names(dat.std)) {
+            if (!outcome.coln%.%".avg" %in% names(dat.std)) {
                 stand.avg=aggregate(dat.std[[outcome.coln]], by = list(dat.std$analyte, dat.std[[predictor.coln]], dat.std$assay_id), mean)
-                names(stand.avg) = c("analyte", predictor.coln,"assay_id", outcome.coln%+%".avg")
+                names(stand.avg) = c("analyte", predictor.coln,"assay_id", outcome.coln%.%".avg")
                 dat.std = merge(dat.std, stand.avg, by=c("analyte", predictor.coln,"assay_id"), all.x=FALSE, all.y=TRUE)
             }
             
@@ -131,7 +131,7 @@ ncal.formula = function (formula, data,
             } else {
                 fit = crm.fit(formula, data = dat.std, var.model=var.model, robust=robust, fit.4pl=fit.4pl, verbose=verbose, max.iter=control.crm.fit$max.iter, log.both.sides=log.both.sides)
             }
-            if (return.fits & !bcrm.fit) fits[[p%+%a]]=fit
+            if (return.fits & !bcrm.fit) fits[[p%.%a]]=fit
             if (verbose>2) print("debug 100")
             
             out.ana=data.frame()
@@ -209,7 +209,7 @@ ncal.formula = function (formula, data,
                         out.s[nrow(out.s),outcome.coln]=ifelse(log.transform, exp(mean(y.)), mean(y.))
                     }
                     if (!find.best.dilution) {
-                        if(length(dil)>1) warning ("There are most than one dilutions for this sample, and we are returning all. sample_id: "%+%s)
+                        if(length(dil)>1) warning ("There are most than one dilutions for this sample, and we are returning all. sample_id: "%.%s)
                         out.ana=rbind(out.ana, out.s)
                     } else {
                         out.ana=rbind(out.ana, out.s[which.min(out.s$se), ])
@@ -221,9 +221,9 @@ ncal.formula = function (formula, data,
                     pch=rep(1,nrow(dat.std))
                     suppressWarnings(
 #                      if (!WLS) {
-                        plot(fit, type=ifelse(bcrm.fit,"p","all"), main=ifelse(is.null(main),p%+%", "%+%a,main), cex=cex, log=plot.log, xlab=xlab, pch=pch, ylab=ylab, ...)      
+                        plot(fit, type=ifelse(bcrm.fit,"p","all"), main=ifelse(is.null(main),p%.%", "%.%a,main), cex=cex, log=plot.log, xlab=xlab, pch=pch, ylab=ylab, ...)      
 #                      } else {
-#                        conc.est.grid=myplot.gnls (fit, myDat=dat.std, main=ifelse(is.null(main),p%+%", "%+%a,main), x1=NULL, xn=NULL, y1=NULL, yn=NULL, 
+#                        conc.est.grid=myplot.gnls (fit, myDat=dat.std, main=ifelse(is.null(main),p%.%", "%.%a,main), x1=NULL, xn=NULL, y1=NULL, yn=NULL, 
 #                            check.out.of.range=check.out.of.range, unk.replicate=1, verbose=verbose)
 #                      }      
                     )
@@ -232,7 +232,7 @@ ncal.formula = function (formula, data,
                     
                     if (plot.unknown) {
 #                        if (!WLS) {
-                            suppressWarnings( plot(fit, type=ifelse(bcrm.fit,"p","all"), main=ifelse(is.null(main),p%+%", "%+%a,main), cex=cex, pch=pch,log=plot.log,xlab=xlab,ylab=ylab, ...) )
+                            suppressWarnings( plot(fit, type=ifelse(bcrm.fit,"p","all"), main=ifelse(is.null(main),p%.%", "%.%a,main), cex=cex, pch=pch,log=plot.log,xlab=xlab,ylab=ylab, ...) )
 #                        } else {
 #                            # do nothing b/c plot.gnls makes two plots and compute conc.est.grid
 #                        }
@@ -324,7 +324,7 @@ ncal.formula = function (formula, data,
                             LOQ=rbind(LOQ, c(p,a,NA,NA))
                         } else {
                             LOQ=rbind(LOQ, c(p,a,NA,NA))
-                            #stop("rle1 not quite right, "%+%p%+%a)
+                            #stop("rle1 not quite right, "%.%p%.%a)
                         }
                         
                         rle30 = rle(abs(unname(se.profile))<30)
@@ -335,7 +335,7 @@ ncal.formula = function (formula, data,
                             LOQ.30=rbind(LOQ.30, c(p,a,NA,NA))
                         } else {
                             LOQ.30=rbind(LOQ.30, c(p,a,NA,NA))
-                            #stop("rle30 not quite right, "%+%p%+%a)
+                            #stop("rle30 not quite right, "%.%p%.%a)
                         }
                         
                     }
@@ -350,7 +350,7 @@ ncal.formula = function (formula, data,
                         #mylegend(legend=c("LOQ","estimate of unknowns"), col=c("gray",2,1), lty=c(1,0), pch=c("","*"), x=2)                                            
     
                         # se vs conc
-                        plot(exp(conc.est.grid[,1]), conc.est.grid[,2],type="n", xlab="estimate", ylab="variance ("%+%unk.replicate%+%" replicate"%+%ifelse(unk.replicate>1,"s","")%+%")", log="x", 
+                        plot(exp(conc.est.grid[,1]), conc.est.grid[,2],type="n", xlab="estimate", ylab="variance ("%.%unk.replicate%.%" replicate"%.%ifelse(unk.replicate>1,"s","")%.%")", log="x", 
                             #ylim=c(0,max(conc.est.grid[,2])^2), 
                             ylim = c(0, min(c(3, max(conc.est.grid[,2])^2))),
                             xlim=range(dat.std[[predictor.coln]]))
@@ -360,7 +360,7 @@ ncal.formula = function (formula, data,
                         mylegend(legend=c("total","if curve is perfectly known","if y is perfectly known"),col=c("black","red","blue"), lty=1, x=2)
                         
                         # %CV vs conc
-                        plot(exp(conc.est.grid[,1]), se.profile,type="l", xlab="estimate", ylab="% CV ("%+%unk.replicate%+%" replicate"%+%ifelse(unk.replicate>1,"s","")%+%")", log="x", 
+                        plot(exp(conc.est.grid[,1]), se.profile,type="l", xlab="estimate", ylab="% CV ("%.%unk.replicate%.%" replicate"%.%ifelse(unk.replicate>1,"s","")%.%")", log="x", 
                             ylim=c(0,100), xlim=range(dat.std[[predictor.coln]]))
                         abline(h=20, col="gray")
                         #abline(h=30, col=3)
@@ -383,7 +383,7 @@ ncal.formula = function (formula, data,
             } else {
     
                 if (plot) {
-                    plot (formula, dat.std, log=plot.log, main="FAILED: "%+%p%+%", "%+%a, cex=.1)
+                    plot (formula, dat.std, log=plot.log, main="FAILED: "%.%p%.%", "%.%a, cex=.1)
                     if (plot.se.profile) empty.plot()
                 }                
                 bad.se=T # needed after this if statement

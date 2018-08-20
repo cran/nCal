@@ -73,7 +73,7 @@ glspl=function (formula, data, max.iter=50, reltol=1e-3, fit.4pl=FALSE, gof.thre
         #devs = c(devs, sum( g.hat*log(fitte) + log(sigmasq.hat) + resi^2/(fitte^g.hat*sigmasq.hat) )  )
         new.theta=cla2gh(coef(fit))
         
-        if (verbose) cat("Iter "%+%iterations%+%".", "theta:", new.theta, "g.hat:", g.hat, " deviance:", devs[iterations], "\n")
+        if (verbose) cat("Iter "%.%iterations%.%".", "theta:", new.theta, "g.hat:", g.hat, " deviance:", devs[iterations], "\n")
         
         # stopping rules
         if (max(abs(1 - new.theta/theta)) < reltol) {

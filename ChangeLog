@@ -130,3 +130,6 @@
 2014-10-31 Youyi Fong
 	* remove plot.crm. need to learn callNextMethod to use it, b/c it does not
 	allow plot.drc or drc:::plot.drc
+
+2018--8-17
+	* Change to use %.%

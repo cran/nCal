@@ -26,7 +26,7 @@ ncalGUI <- function(verbose = FALSE){
 #    while(1){
 #        if(inherits(try(get(env,envir = .GlobalEnv),silent = TRUE),"try-error")) break
 #        x <- x + 1
-#        env <- env0 %+% x
+#        env <- env0 %.% x
 #    }
 #    
 #    assign(env,environment(),envir = .GlobalEnv)
