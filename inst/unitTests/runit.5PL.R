@@ -28,7 +28,7 @@ dat.std=data.frame(fi, expected_conc=exp(rep(log.conc,each=n.replicate)), analyt
 dat=rbind(dat, dat.std)
 
 
-## 2018 Aug. cran submission returns an error
+## 2018 Aug. cran submission returns an error, could be that n.iter and n.adapt too small for a new version of jags since bcrm test works
 #out.norm = ncal(log(fi)~expected_conc, dat, bcrm.fit=TRUE, bcrm.model="norm",
 #    return.fits = TRUE, plot.se.profile=F,
 #    control.jags=list(n.iter=1e1, n.adapt=0))

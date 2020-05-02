@@ -49,5 +49,3 @@ get.abs.dev(p.eotaxin[1,], p.eotaxin[2,], t.range=log(c(0.51,1e4)), y.range=c(5,
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

@@ -133,3 +133,9 @@
 
 2018--8-17
 	* Change to use %.%
+
+2018--8-17
+	* Mengshu Shao identified a bug related to LOD, bug fix
+
+2020-05-01
+	* Move gWidgets out of depends as notified by CRAN

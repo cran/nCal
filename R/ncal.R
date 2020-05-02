@@ -85,7 +85,7 @@ ncal.formula = function (formula, data,
     ana=sort(unique(data$analyte))
     #ana=sort(setdiff(unique(data$analyte), "blank"))
     assays=sort(setdiff(unique(data$assay_id), "blank"))
-    high.low=NULL
+    LOD=NULL
     LOQ=NULL
     LOQ.30=NULL
     out=data.frame()
@@ -282,7 +282,7 @@ ncal.formula = function (formula, data,
                         same.as.high.rle=rle(same.as.high)
                         tmp=nrow(x.hat.high)-last(same.as.high.rle$lengths)
                         x.high=x.hat.high[ifelse(tmp>0,tmp,1), 1]
-                        high.low=rbind(high.low,c(p,a,x.high,x.low))
+                        LOD=rbind(LOD,c(p,a,x.high,x.low))
                         conc.est.grid=rbind(x.hat.low, x.hat.high[nrow(x.hat.high):1,])
                     
 #                    } else {
@@ -372,7 +372,7 @@ ncal.formula = function (formula, data,
                     }    
                     
                 } else {
-                    if (find.LOD) high.low=rbind(high.low, c(p,a,NA,NA))
+                    if (find.LOD) LOD=rbind(LOD, c(p,a,NA,NA))
                     if (find.LOQ) {
                         LOQ=rbind(LOQ, c(p,a,NA,NA))
                         LOQ.30=rbind(LOQ.30, c(p,a,NA,NA))
@@ -398,7 +398,7 @@ ncal.formula = function (formula, data,
     
     if (find.LOD) {
         if (!is.null(LOD)) {
-            LOD=as.data.frame(high.low, stringsAsFactors=FALSE) # without stringsAsFactors=FALSE, sometimes x.high/x.low are set to factor
+            LOD=as.data.frame(LOD, stringsAsFactors=FALSE) # without stringsAsFactors=FALSE, sometimes x.high/x.low are set to factor
             names(LOD)=c("assay","analyte","rlodi","llodi")
             LOD$llodi=exp(as.double(LOD$llodi))
             LOD$rlodi=exp(as.double(LOD$rlodi))

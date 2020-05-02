@@ -28,7 +28,7 @@ S3method(print,crm)
 S3method(vcov,bcrm)
 
 
-import(drc, gWidgets, kyotil)
+import(drc, kyotil, gWidgets2)
 importFrom(gdata, xls2sep, sheetNames)
 
   importFrom("grDevices", "dev.off")
