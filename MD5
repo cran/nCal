@@ -1,5 +1,5 @@
 ce17e5c56d5e8b237ba343fbfacab481 *ChangeLog
-cd8fc0fb948fe26731dcca6cc6282154 *DESCRIPTION
+fa94f14e04b06b6b238dcb8b0d3635b7 *DESCRIPTION
 a9af7648c70e313ff4bcc378d2673a4a *NAMESPACE
 10f67d0aca0c816daf8d5be07e01f8af *R/5pl.R
 9be91306362aea7eb6e2bebeede5310e *R/5pl_parameterization_calculus.R
@@ -22,7 +22,7 @@ da1b4e004a40024c93a52077cda69f8e *data/hierarchical_modeling_example_2.rda
 96a374a28af838a4db9f7215fca3909b *data/p.eotaxin.rda
 430035039a6b98a72fe728185655c8df *inst/CITATION
 d8c2daa4e93f65228d7f79baefb3fc2e *inst/doc/desktop.ini
-0e8e0b89720f31f2480392a609aa9747 *inst/doc/nCal-vignette.pdf
+1b7a3d2a819eb0eb2c268b040fcca08b *inst/doc/nCal-vignette.pdf
 c044066695e5622b698f562d93267f66 *inst/doc/nCal-vignette.pdf.asis
 a68efef3fcbcd22c16b9be26c4fb72c7 *inst/jags_script/classical_lar1.jags
 3e6258b723e855bc86f23728dd8c2ab1 *inst/jags_script/classical_mixnorm.jags
