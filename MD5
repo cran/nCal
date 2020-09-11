@@ -1,6 +1,6 @@
-ce17e5c56d5e8b237ba343fbfacab481 *ChangeLog
-fa94f14e04b06b6b238dcb8b0d3635b7 *DESCRIPTION
-a9af7648c70e313ff4bcc378d2673a4a *NAMESPACE
+ba7dce4076f0d6d44445f0b7b96892ca *ChangeLog
+4f20fd9d38e982cfe1a709f9e5b3fe26 *DESCRIPTION
+39d84a669fc19e325545ae912f23a86c *NAMESPACE
 10f67d0aca0c816daf8d5be07e01f8af *R/5pl.R
 9be91306362aea7eb6e2bebeede5310e *R/5pl_parameterization_calculus.R
 92fb548ed87bab7055789db271c774c4 *R/bcrm.R
@@ -15,14 +15,13 @@ b2a5f0adf4acf03b0c796e6e8b2e52fc *R/crm.fit.R
 7c5c2db42b4cff2c871356ae7acc7567 *R/read.luminex.xls.R
 399162f50f1fc3dc4fe19221b73f458f *R/ssfct.R
 2d9c97629936d53130ae8d0d3b051f85 *R/sysdata.rda
-ee7fdbd5864503a16d6dc5cb5a834e31 *build/vignette.rds
+51e46a97e69a7d062a57dd061e1d7212 *build/vignette.rds
 c0a6d01b92170c552965e58d4901b5ca *data/dat.QIL3.rda
 8fbb26d78bf06fe5361ea931ad6c41cc *data/elisa.prior.rda
 da1b4e004a40024c93a52077cda69f8e *data/hierarchical_modeling_example_2.rda
 96a374a28af838a4db9f7215fca3909b *data/p.eotaxin.rda
 430035039a6b98a72fe728185655c8df *inst/CITATION
-d8c2daa4e93f65228d7f79baefb3fc2e *inst/doc/desktop.ini
-1b7a3d2a819eb0eb2c268b040fcca08b *inst/doc/nCal-vignette.pdf
+c8dd02ef9f4d9138af1a24a47a052946 *inst/doc/nCal-vignette.pdf
 c044066695e5622b698f562d93267f66 *inst/doc/nCal-vignette.pdf.asis
 a68efef3fcbcd22c16b9be26c4fb72c7 *inst/jags_script/classical_lar1.jags
 3e6258b723e855bc86f23728dd8c2ab1 *inst/jags_script/classical_mixnorm.jags
@@ -52,7 +51,7 @@ f5603c25cdff9c9cbc647efee4f2b2fd *inst/unitTests/report.txt
 515b18df7e17596dc38b9dbea407b26f *inst/unitTests/runRUnitTests.R
 29b62913bcf50116e377faedfa5d1720 *inst/unitTests/runit.5PL.R
 b8efdbd79d27d4a706e0f25050563306 *inst/unitTests/runit.bcrm.R
-4c2cabd8553c59a5d3d7e769f78f0419 *inst/unitTests/runit.ncal.R
+a1112e937efaa3c5c0ead41082b4614b *inst/unitTests/runit.ncal.R
 3c977b7547be32814337d1f1ec3f7e40 *man/5PL.Rd
 a434b447d6ae55fc68a8e7c077281db6 *man/bcrm.Rd
 3f9fa0c2e7c21e999c05478590df244e *man/crm.fit.Rd
@@ -66,6 +65,5 @@ cd7234f43ffbded2421b415736628500 *man/gnls.fit.Rd
 3f02e64d8100654ec0b005e1d7be991e *man/ncal.Rd
 d54ab3b2426a84df908f7785b7d9a9e8 *man/p.eotaxin.Rd
 567119b4a43d229ea63a11b7fc2a9d2b *man/plot5PL.Rd
-22961f2e1909652b18432ff9ff747f4b *man/read.luminex.xls.Rd
 29b68f425dcdbeb7c332820abae8c8d5 *tests/doRUnit.R
 c044066695e5622b698f562d93267f66 *vignettes/nCal-vignette.pdf.asis

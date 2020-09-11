@@ -177,14 +177,14 @@ checkEqualsNumeric(
 #, tolerance=tolerance.jags)
 
 
-## test read.luminex.xls
-
-dat = read.luminex.xls(paste(system.file(package="nCal")[1],
-    '/misc/02-14A22-IgA-Biotin-tiny.xls', sep=""), verbose=FALSE)
-out = ncal(log(fi)~expected_conc, dat, return.fits = TRUE, plot.se.profile=FALSE)
-
-checkEqualsNumeric(unlist(out[1:3,c("fi")]), c(15,45,19.33908), tolerance=tolerance)
-checkEqualsNumeric(unlist(out[12,c("fi")]), c(183.73622), tolerance=tolerance)
+### test read.luminex.xls
+#
+#dat = read.luminex.xls(paste(system.file(package="nCal")[1],
+#    '/misc/02-14A22-IgA-Biotin-tiny.xls', sep=""), verbose=FALSE)
+#out = ncal(log(fi)~expected_conc, dat, return.fits = TRUE, plot.se.profile=FALSE)
+#
+#checkEqualsNumeric(unlist(out[1:3,c("fi")]), c(15,45,19.33908), tolerance=tolerance)
+#checkEqualsNumeric(unlist(out[12,c("fi")]), c(183.73622), tolerance=tolerance)
 
 
 ## test weighted LS fit

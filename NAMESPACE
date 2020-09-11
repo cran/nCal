@@ -11,7 +11,7 @@ export(ED5PL, plot5PL, getConc, lines5PL, gnls.fit)
 export(get.S1, get.S2, get.abc, get.abs.dev)
 export(get.curve.param.list, simulate1curve)
 
-export(read.luminex.xls, ncalGUI)
+export(ncalGUI)
 
 
 S3method(coef,bcrm) 

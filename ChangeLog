@@ -79,63 +79,66 @@
     dependencies
     * fix bug in ncal.character
     * remove incr and auto.detect.incr and handle decreasing more smartly
-	* framed.sty needs to be present where kpsewhich.exe locates
-	* qpdf is downloaded and path added, ghostscrip
+    * framed.sty needs to be present where kpsewhich.exe locates
+    * qpdf is downloaded and path added, ghostscrip
 
 2013-05-28  V_0.2-2 Youyi Fong
-	* making changes according to major revision comments
-	* add additional.plot.func to ncal list of params
-	* in ncal, when plotting drm fit, having xlim sometimes messes things up,
-	not sure why
+    * making changes according to major revision comments
+    * add additional.plot.func to ncal list of params
+    * in ncal, when plotting drm fit, having xlim sometimes messes things up,
+    not sure why
 
 2013-05-28  V_0.3-1 Youyi Fong
-	* remove some checkEqualsNumeric from nCal.Rd since they fail on some
-	systems (drm optimization related)
-	* making changes according to minor revision comments
+    * remove some checkEqualsNumeric from nCal.Rd since they fail on some
+    systems (drm optimization related)
+    * making changes according to minor revision comments
 
 2013-05-28  V_0.3-2 Youyi Fong
-	* restrict unit testing to x86_64, mingw32 and x86_64, linux-gnu
+    * restrict unit testing to x86_64, mingw32 and x86_64, linux-gnu
 
 2013-05-28  V_0.3-3 Youyi Fong
-	* after bug fix to integrate(), some tests fail. move all testing from
-	function help examples to unit testing files. change tolerance for those
-	checks depending on integrate() to a large number for now. See email from
-	Prof. Ripley on 7/16/13
+    * after bug fix to integrate(), some tests fail. move all testing from
+    function help examples to unit testing files. change tolerance for those
+    checks depending on integrate() to a large number for now. See email from
+    Prof. Ripley on 7/16/13
 
 2013-05-28  V_0.3-4 Youyi Fong
-	* move unit testing code for read.luminex.xls to runit.ncal.R from
-	function help
-	* expand unit testing to all platforms with relaxed tolerance
+    * move unit testing code for read.luminex.xls to runit.ncal.R from
+    function help
+    * expand unit testing to all platforms with relaxed tolerance
 
 2013-07-24  V_0.4-1 Youyi Fong
-	* in drm.fit, use default ss.fct first so that the results will match drm call in most cases
-	* add check.out.of.range parameter to ncal that supports two modes of
-	checks. The default mode is a new mode which resets any estimated
-	concentration that is outside the range of standard concentrations
+    * in drm.fit, use default ss.fct first so that the results will match drm call in most cases
+    * add check.out.of.range parameter to ncal that supports two modes of
+    checks. The default mode is a new mode which resets any estimated
+    concentration that is outside the range of standard concentrations
 
 
 2013-11-07 Youyi Fong
-	* make fi 1 in ncal if fi is 0 or negative
+    * make fi 1 in ncal if fi is 0 or negative
 
 2013-11-29 Youyi Fong
-	* use a new copy of youtil.R that does not have getVarComponent.nlme to avoid a warning after a drc update
+    * use a new copy of youtil.R that does not have getVarComponent.nlme to avoid a warning after a drc update
 
 2014-03-31 Youyi Fong
-	* change } else if(all(is.na(diag(vcov.)))) { to any at Doug Lowe's
-	suggestion
+    * change } else if(all(is.na(diag(vcov.)))) { to any at Doug Lowe's
+    suggestion
 
 2014-04-23 Xuesong Yu
-	* add weighted ls implementation
+    * add weighted ls implementation
 
 2014-10-31 Youyi Fong
-	* remove plot.crm. need to learn callNextMethod to use it, b/c it does not
-	allow plot.drc or drc:::plot.drc
+    * remove plot.crm. need to learn callNextMethod to use it, b/c it does not
+    allow plot.drc or drc:::plot.drc
 
 2018--8-17
-	* Change to use %.%
+    * Change to use %.%
 
 2018--8-17
-	* Mengshu Shao identified a bug related to LOD, bug fix
+    * Mengshu Shao identified a bug related to LOD, bug fix
 
 2020-05-01
-	* Move gWidgets out of depends as notified by CRAN
+    * Move gWidgets out of depends as notified by CRAN
+
+2020-09-10
+    * Remove gdata dependency by removing read.luminex.xls from exported functions
