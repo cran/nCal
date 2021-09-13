@@ -130,6 +130,8 @@ Fong, Y., Wakefield, J., DeRosa, S., Frahm, N. (2012) A robust Bayesian random e
 \examples{
 
 
+\dontrun{
+
 set.seed(1)
 log.conc=log(1e4)-log(3)*9:0
 n.replicate=2
@@ -171,7 +173,6 @@ par(mfrow=c(1,2))
 plot(fits)
 
 
-\dontrun{
 # takes longer
 
 # Example from Fong et al. (2012) 
